@@ -1,0 +1,161 @@
+### Git e GitHub
+
+# O que é Git?
+
+O Git é um sistema de controle de versão distribuído, gratuito e de código aberto, que permite rastrear e gerenciar as alterações em um projeto de software ao longo do tempo. Ele foi criado por Linus Torvalds em 2005. O Git é uma ferramenta essencial para desenvolvedores, facilitando a colaboração em projetos, a criação de versões e a reversão de alterações caso necessário. 
+
+O Git é como se fosse um vídeo no meu computador.
+
+# O que é GitHub?
+
+O GitHub é uma plataforma online que funciona como um grande repositório de código de programação, onde desenvolvedores podem armazenar, compartilhar e colaborar em projetos. É essencialmente uma rede social para programadores, facilitando o trabalho em equipe e a colaboração em projetos de código aberto. 
+
+O GitHub é como o YouTube, uma plataforma que posso compartilhar ou assistir outros videos.
+
+Para criar uma conta no GitHub: https://docs.github.com/pt/get-started/start-your-journey/creating-an-account-on-github
+
+Para criar um repositório no GitHub: https://docs.github.com/pt/repositories/creating-and-managing-repositories/creating-a-new-repository
+
+### Codespaces
+
+# O que é codespaces?
+
+Um codespace é um ambiente de desenvolvimento virtual e hospedado na nuvem, oferecido pelo GitHub. Permite que os desenvolvedores escrevam, testem e depurem código diretamente na nuvem, sem a necessidade de configurações locais complexas. 
+
+Como criar um codespace para um repositório: https://docs.github.com/pt/codespaces/developing-in-a-codespace/creating-a-codespace-for-a-repository
+
+### Atenção
+
+Aprenda a função das coisas, não se preenda a gostos pessoais.
+
+### Anotações pessoais
+
+O Git é um controlador de versões, ele cria e gerencia várias versões do projeto. Ele faz uma cópia sempre que você o chama, não copiando totalmente, mas indicando as alterações que foram realizadas em cada versão.
+
+O GitHub é uma rede social, no qual posso compartilhar projetos, acessar, editar, copiar e interagir com projetos de outras pessoas.
+
+O codespaces é um espaço para eu desenvolver meus projetos, ele cria uma máquina virtual com o vscode e um terminal, no qual me permite desenvolver sem as limitações de um computador físico mais modesto.
+
+### Referências:
+
+https://www.atlassian.com/br/git/tutorials/what-is-git
+https://docs.github.com/pt/get-startedstart-your-journey/about-github-and-git
+https://docs.github.com/pt/codespaces/about-codespaces/what-are-codespaces
+
+#################################
+
+"Se você quiser fazer uma torta de maçã a partir do zero, você deve primeiro inventar o Universo." - Carl Sagan
+
+Não é possível hoje começar algo do zero, vamos precisar subir no ombro de gigantes e alçar novos voos. Isso não é um problema, podemos fazer coisas incríveis em comunidade.
+
+### Node.js
+
+# O que é node.js
+
+Node.js é um ambiente de execução JavaScript do lado do servidor, que permite aos desenvolvedores criar aplicações web, APIs, e outras ferramentas de linha de comando utilizando a linguagem JavaScript.
+
+Node.js é como uma cozinha que permite preparar receitas (aplicações) usando um fogão (ambiente de execução) que entende a linguagem do JavaScript.
+
+# Terminal 
+
+Terminal é uma interface de linha de comando que permite interagir com um sistema operacional através de comandos digitados, sme a necissade de uma interface gráfica.
+
+Terminal é como um pedaço de papel, ele permite que você intereja com o sistema operacional, enquanto o shell é o "motor" que interpreta e executa seus comandos.
+
+# Shell
+
+É uma interface que permite aos utilizadores interagir com um sistema operacional.
+
+É como a casca de um ovo, que protege o conteúdo interno.
+
+# NVM (Node Version Manager)
+
+NVM é uma ferramenta que permite aos desenvolvedores gerenciar várias cersões do Node.js em um único sistema operacional.
+
+# Para acessar os detalhes do NVM use:
+
+nvm --help (node version manager ajuda)
+
+### Como instalar uma versão específica do Node.js?
+
+1º Vamos precisar listar as versões disponiveis,vamos usar o comando: 
+
+nvm ls (node version manager list)
+
+2º Escolha a versão, por exemplo lts/hydrogen, para isso use os comandos:
+
+nvm install lts/hydrogen (node version manager install version)
+
+### Como deixar a versão anterior como padrão
+
+Para isso vamos precisar definir como padrão a versão deseja, conforme abaixo:
+
+nvm alias default <version> (node version manager apelido padrão versão)
+
+### Declarar a versão utilizada no projeto
+
+Para deixar claro para outras pessoas e padronizar o projeto, precisamos deixar claro qual versão do node vai ser utilizado, fazemos isso da forma abaixo:
+
+1º Crie o arquivo abaixo na pasta raiz do projeto.
+.nvmrc (node version manager run commands)
+
+2º Dentro escreva a versão desejada e pule uma linha.
+
+Exemplo:
+"
+lts/hydrogen
+
+"
+
+### Next.js
+
+É um framework React para construir aplicações web, que fornece uma estrutura e recursos extras para otimizar o desenvolvimento e melhorar o desempenho das aplicações.
+
+É como um motor que facilita a construção de aplicações web com React.
+
+Também para o Next e o React, é necessário indicar no projeto quais versões foram utilizadas. Para isso vamos:
+
+1º Precisamos inicializar o node no nosso projeto e esse comando vai criar um arquivo package.json, usamos o comando:
+
+npm init (node package manager initialize)
+
+2º Vamos escolher a versão do next.js que será utilizado, nesse exemplo vamos usar a versão 13.1.6:
+
+npm install next@13.1.6 (node package manager install <version>)
+
+### React
+
+É uma biblioteca JavaScript de software livre, popularmente utilizada para construir interfaces de usuário do lado do cliente (front-end).
+
+É como um sistema de blocos de construção para interfaces de usuário, onde cada bloco (componente) pode ser utilizado e combinado para criar aplicações complexas.
+
+É necessário instalar a versão do react, nesse exemplo é a 18.2.0:
+
+npm install react@18.2.0 (node package install <version>)
+
+O ponto é que o React foi separado entre seu core e suas renderizações, pois ele é extremamente vasto.
+
+Para HTML, quem renderiza é o DOM, para isso vamos instalar a versão do react DOM, para manipula-lo:
+
+npm install react-dom@18.2.0 (node package install <version>)
+
+
+
+
+
+
+
+
+
+O que é um serviço web?
+
+Protocolos
+
+HTTP
+FTP
+SMTP
+UDP
+IP
+
+next dev
+"dev": "next dev"
