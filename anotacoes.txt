@@ -154,6 +154,8 @@ SMTP
 UDP
 IP
 
+UDP TCP
+
 next dev
 "dev": "next dev"
 
@@ -169,3 +171,96 @@ function Home() {
 }
 
 export default Home;
+
+deploy
+
+
+
+#################
+Control History
+
+Versionamento de código
+
+sccs -> rcs -> cvs -> svn -> git
+       centralizado        | distribuído
+
+Merge
+
+Merge conflict
+
+Clone
+
+ls -la
+
+.git
+
+Diff
+
+Delta encoding
+
+Blob
+
+git log
+
+Commit
+
+
+3 estágios
+
+1 - Modified
+2 - Staged
+3 - Commit
+
+git log --stat
+
+git status
+
+Unstrack file
+
+Build
+
+.gitignore
+
+git add nome do arquivo
+
+git commit
+
+
+
+git log --oneline
+
+Working Directory
+
+Diff
+
+git diff
+
+Newline
+
+Amend
+
+git commit --amend 
+
+Gits são imutáveis
+
+
+
+
+
+
+
+
+
+
+
+
+origin/main
+
+branch
+
+git push
+
+pull
+
+git commit -m "Mensagem"
+
