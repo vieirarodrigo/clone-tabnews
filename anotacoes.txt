@@ -264,3 +264,5 @@ pull
 
 git commit -m "Mensagem"
 
+git push --force ou --f
+
