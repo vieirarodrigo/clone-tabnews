@@ -266,3 +266,23 @@ git commit -m "Mensagem"
 
 git push --force ou --f
 
+
+
+
+
+
+
+Continuos deployment
+
+Client / Server
+
+
+Hospedagem de site
+
+Deploy
+
+Continuos integration -> Build
+
+
+Principle minimun privilege
+
