@@ -353,3 +353,31 @@ no package.json
 "lint:check": "prettier --check ."
 "lint:fix": "prettier --write ."
 
+
+
+
+
+
+
+DNS 2 - níveis
+
+IP é o endereço de cada computador
+
+DNS é um apelido
+
+DNS <- Computador -> servidor
+    ->
+
+Recursive Resolver <- Computador
+                    ->
+
+Root Resolver -> Root Server
+              <-
+              -> TLD 
+              <-
+              -> Authoritative Server
+
+FQDN
+
+Root Domain - TLD - Authoritative Server - TTL
+            ccTLD/gTLD
