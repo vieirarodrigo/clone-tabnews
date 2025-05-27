@@ -284,5 +284,58 @@ Deploy
 Continuos integration -> Build
 
 
-Principle minimun privilege
+Principle least privilege
+
+Cada commit deployado, kkk, tem uma url unica
+
+
+
+
+
+
+
+
+
+N1: Ser lembrado indivualmente; (Anotar tarefas no papel, em cima da mesa)
+N2: Ser lembrado em grupo; (Quadro kambam)
+N3: Expandir conhecimento; (Trello ou Github)
+N4: Gerar metas. (Jira)
+
+
+Issue inception
+
+Milestones
+    - Milestone 0: Em construção
+
+Estágio 1 - Início
+Estágio 2 - Progresso
+Estágio 3 - Conclusão
+
+Issues: 
+
+Colocar o site num domínio .com.br
+Definir estilização do código e configurar editor
+Programar página de "Em construção"
+
+
+
+
+
+
+
+
+
+
+Estilização de código é essencial
+
+- [ ] - Ligar sincronização do editor
+- [ ] - Configurar o EditorConfig
+- [ ] - Configurar o Prettier
+
+
+EditorConfig
+
+.EditorConfig
+
+root = true
 
