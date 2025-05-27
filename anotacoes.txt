@@ -339,3 +339,17 @@ EditorConfig
 
 root = true
 
+[*] 
+indent_style = space
+indent_size = 2
+
+
+Prettier / Standard js
+
+npm install prettier -D ou --save-dev
+
+
+no package.json
+"lint:check": "prettier --check ."
+"lint:fix": "prettier --write ."
+
