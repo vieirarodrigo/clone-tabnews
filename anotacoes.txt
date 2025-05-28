@@ -371,13 +371,32 @@ DNS <- Computador -> servidor
 Recursive Resolver <- Computador
                     ->
 
-Root Resolver -> Root Server
-              <-
-              -> TLD 
-              <-
-              -> Authoritative Server
+Recursive Resolver -> Root Server
+                   <-
+                   -> TLD 
+                   <-
+                   -> Authoritative Server
 
 FQDN
 
 Root Domain - TLD - Authoritative Server - TTL
             ccTLD/gTLD
+
+
+
+
+
+
+
+
+
+
+
+
+### Dia 12 - DNS (Prática)
+
+Task da insue "Coloca o site num domínio .com.br"
+
+- [ ] - Registrar domínio próprio
+- [ ] - Configurar Servidor de DNS
+
