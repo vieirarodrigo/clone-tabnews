@@ -827,3 +827,87 @@ Dizer para a TLD o nosso DNS
 
 
 dig site A +trace
+
+
+
+
+
+###  Dia 13 - 
+
+As pessoas estão se aproximando ou se afastando?
+
+Teoria McDonalds
+
+
+99.9% Uptime
+9h/Ano ou 44min/mês
+
+SLA
+
+Status Pages
+
+vercel status ou aws status ou github status
+
+RDS
+
+
+
+
+
+
+### Dia 14 - Milestone 1: Fundação
+
+## D1 - Inauguração Milestone 1: Fundação
+
+Front-end
+
+Milestone 1: Fundação
+  Proposta de arquitetura e pastas
+  Testes automatizados
+  Banco de dados (Local)
+  Migrations
+  Continuos Integration
+  Linter de código
+  Linter de commits
+  Banco de dados (homologação e produção)
+  Tipo da licença
+
+
+## D2 - Uma história macabra sobre "Overengineering"
+
+Overengineering - Excesso de engenharia (Complexo)
+
+Você quer estar aqui
+
+Underengineering - (Simples e mal feito)
+
+Um software deve ser modificável
+
+
+## D3 - Porposta de Arquitetura e pastas
+
+1. Arquitetura de software
+
+MVC - Model View Controler
+
+2. Organização das pastas e arquivos
+
+root
+  pages
+    index.js
+  models
+    user.js
+    content.js
+    password.js
+  infra
+    database.js
+    migration
+    provisioning
+      staging
+      production
+  tests
+
+## D4 - Bônus: PoC e MVP ajudam mesmo?
+
+PoC - Proof of Concept
+MVP - Minimum Viable Product
