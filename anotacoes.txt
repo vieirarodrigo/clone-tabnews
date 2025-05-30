@@ -911,3 +911,69 @@ root
 
 PoC - Proof of Concept
 MVP - Minimum Viable Product
+
+
+
+
+### Dia 15 
+
+## D1 - Testes Automatizados: um caminho sem volta
+
+62 Aulas??
+
+- [ ] - Instalar o Test Runner
+- [ ] - Criar um Teste de Teste
+- [ ] - Criar um Teste de Verdade
+
+## D2 - Instalar um Test Runner
+
+Código que executa Código
+
+Mocha | AVA | Playwight | Jest
+
+npm install --save-dev jest@29.6.2
+
+"test": "jest"
+"test:watch": "jest --watch"
+
+
+## D3 - Criar um "Teste de Teste"
+
+Programar uma calculadora
+
+npm run test -watch
+
+tests
+
+calculadora.test.js
+
+test("nome do teste", callbackFunction);
+
+function callbackFunction() {
+  console.log("esta função está sendo chamada?")
+}
+
+test("nome do teste", function () {
+  console.log("e assim, funciona?");
+})
+
+test("nome do teste", () => {
+  console.log("e agora?");
+});
+
+test("outro teste", () => {
+  console.log("outro teste");
+});
+
+Expect - Espera
+
+test("espero que 1 seja 1", () => {
+  espect(1).toBe(1);
+});
+
+Valor gerado dinamicamente | Valor esperado
+
+
+
+
+## D4 - 
