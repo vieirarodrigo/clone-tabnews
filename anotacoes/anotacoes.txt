@@ -995,3 +995,148 @@ Hardcoded
 Teste não diz que o codigo está certo, mas que algo passou ou não em um teste
 
 TDD
+
+
+
+
+
+Resumo: 
+
+E aí, pessoal do Curso.Dev! Sejam muito bem-vindos a mais uma aula que vai mudar completamente a forma como vocês encaram o desenvolvimento de software. Eu sei que o Felipe já tocou na importância disso, mas hoje, a gente vai mergulhar de cabeça nos **Testes Automatizados: um caminho sem volta**! Preparem-se para uma sacada que vai acelerar a carreira de vocês.
+
+Pensem comigo: no desenvolvimento de software moderno, testar manualmente cada alteração de código é como tentar esvaziar o Oceano Atlântico com um balde. Inviável e ineficiente, né? É por isso que os testes automatizados são um pilar fundamental, proporcionando confiança, segurança e agilidade para o projeto. Eles garantem que, a cada nova funcionalidade ou correção, o comportamento esperado da aplicação seja verificado de forma automática.
+
+Vamos estruturar nossa aula em três etapas essenciais, seguindo a didática que a gente tanto preza:
+
+### 1. Instalar um Test Runner
+
+Primeiro, a gente precisa de uma ferramenta para "rodar" nossos testes. Pensem no "Test Runner" como o maestro da orquestra dos seus testes. Ele é um código que procura os arquivos de teste no seu projeto, executa o que você escreveu e te apresenta um relatório claro do que passou e do que falhou. No ecossistema JavaScript, temos várias opções de peso no mercado, como Mocha, AVA, Playwright e, claro, o **Jest**.
+
+O Jest, desenvolvido pelo Facebook e recomendado pela equipe do React, é um dos frameworks de teste mais populares e poderosos para projetos JavaScript. Por que ele? Simplicidade de configuração, execução rápida, mock integrado, suporte a ES6/TypeScript e uma comunidade ativa que é um verdadeiro *dream team* para tirar dúvidas.
+
+**Como a gente instala o Jest?** Moleza! Primeiro, se você ainda não tem um projeto Node.js inicializado, comece com:
+
+```bash
+npm init -y
+```
+Depois, adicione o Jest como uma dependência de desenvolvimento (ou seja, ele só é necessário para quem vai desenvolver e testar, não para a versão final da aplicação):
+
+```bash
+npm install --save-dev jest
+```
+Isso instala a ferramenta que vai fazer a mágica acontecer.
+
+Agora, uma **sacada de produtividade**: vamos configurar os scripts no seu `package.json` para facilitar a vida. Abra o seu `package.json` e adicione (ou ajuste) a seção `scripts` assim:
+
+```json
+// package.json
+{
+  ...
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  ...
+}
+```
+Com `"test": "jest"`, você roda todos os testes do projeto uma vez com `npm test`. Já o `"test:watch": "jest --watch"` é um verdadeiro *game-changer* durante o desenvolvimento! Ele faz com que o Jest fique "escutando" as alterações nos seus arquivos e, ao salvar, roda automaticamente apenas os testes relevantes, dando um feedback instantâneo. Isso é agilidade pura!
+
+### 2. Criar um "Teste de Teste" (Sanity Check)
+
+Antes de testar a lógica complexa da sua aplicação, a gente sempre começa com um "Teste de Teste" ou um *sanity check*. O objetivo aqui é super simples: validar se o Jest foi configurado corretamente e se ele está conseguindo encontrar e executar os arquivos de teste. É a prova de vida do seu ambiente de testes!
+
+Para isso, o Jest automaticamente reconhece arquivos com a extensão `.test.js` (ou `.spec.js`) como arquivos de teste. Uma estrutura comum para o seu projeto seria ter uma pasta `src` para o seu código e uma pasta `tests` para os seus testes.
+
+Vamos criar um arquivo dentro da sua pasta `tests`, por exemplo, `meuprimeiro.test.js`:
+
+```javascript
+// meuprimeiro.test.js
+test("espero que 1 seja 1", () => {
+  // expect(valor_gerado).toBe(valor_esperado);
+  expect(1).toBe(1);
+});
+```
+
+A função `test()` define um teste individual, recebendo uma descrição em string e uma função *callback* com a lógica do teste. E o coração do teste? É a função `expect()` combinada com um "matcher" como o `.toBe()`. O `expect(valor_dinamico).toBe(valor_esperado)` é a forma de afirmar que o resultado do seu código (`valor_dinamico`) é exatamente igual ao que você esperava (`valor_esperado`).
+
+Agora, execute seu "Teste de Teste" no terminal:
+
+```bash
+npm test
+```
+
+Se tudo deu certo, você verá uma saída parecida com esta:
+
+```
+PASS tests/meuprimeiro.test.js
+✓ espero que 1 seja 1 (x ms)
+```
+Isso confirma que seu ambiente de testes está funcionando perfeitamente! Palmas para vocês!
+
+### 3. Criar um "Teste de Verdade"
+
+Com o ambiente validado, é hora de testar uma funcionalidade real da sua aplicação. Vamos pegar um exemplo clássico, como testar uma função `soma` em um arquivo `funcoes.js`.
+
+Se você estiver seguindo padrões como MVC (Model-View-Controller), essa função estaria na sua camada de Model, onde ficam as regras de negócio.
+
+Primeiro, crie o arquivo `src/funcoes.js` com a sua função:
+
+```javascript
+// src/funcoes.js
+function soma(a, b) {
+  return a + b;
+}
+
+module.exports = { soma }; // Usando CommonJS para exportar
+```
+**Atenção aqui!** Para o arquivo de teste poder acessar sua função `soma`, você precisa exportá-la. Usamos `module.exports` e `require` para módulos CommonJS, que é o padrão mais comum em projetos Node.js mais antigos e é o que o Jest usa por padrão. Se você estivesse em um projeto mais moderno com ES Modules (ESM), usaria `export` e `import`, mas isso pode exigir alguma configuração adicional, como um *transpiler* tipo Babel, para garantir compatibilidade com ambientes que ainda não suportam ESM nativamente. No nosso caso simples, `module.exports` e `require` funcionam direto com Jest.
+
+Agora, crie o arquivo de teste `tests/funcoes.test.js`:
+
+```javascript
+// tests/funcoes.test.js
+const { soma } = require('../src/funcoes'); // Importando a função a ser testada
+
+test('soma dois números', () => {
+  expect(soma(1, 2)).toBe(3);
+});
+
+test('soma números negativos', () => {
+  expect(soma(-1, -2)).toBe(-3);
+});
+
+test('soma com zero', () => {
+  expect(soma(5, 0)).toBe(5);
+});
+```
+
+Execute novamente `npm test` e veja a mágica acontecer! Você verá todos os seus testes passando.
+
+Uma "sacada" importantíssima sobre testes é a diferença entre valores "hardcoded" e "softcoded".
+*   **Hardcoded (Valor Fixo):** É o valor que você escreve diretamente no teste como o resultado esperado. No exemplo `expect(resultado).toBe(4);`, o `4` é *hardcoded*. Isso é fundamental em testes unitários, pois você quer garantir que uma entrada específica sempre gere uma saída específica e previsível.
+*   **Softcoded (Valor Dinâmico):** Refere-se ao valor gerado pelo seu código, como a variável `resultado` em `expect(resultado)`. Esse valor é dinâmico e será comparado com o valor *hardcoded* que você espera.
+
+**Filosofia do Teste:** Entendam bem isso: um teste que passa *não prova* que seu código está 100% certo. Ele apenas prova que, para a *situação específica* que você testou, o código se comportou como o esperado. Se a sua função `soma` fosse `return 4;`, o teste `soma(1,2).toBe(3)` falharia, mas `soma(2,2).toBe(4)` passaria – o que mostra a necessidade de múltiplos casos de teste para ter confiança.
+
+Isso nos leva a uma metodologia poderosa: o **TDD - Test-Driven Development (Desenvolvimento Guiado por Testes)**. O ciclo é simples, mas revolucionário:
+1.  **Red (Vermelho):** Escreva um teste para uma funcionalidade que ainda não existe. Rode o teste e veja-o falhar.
+2.  **Green (Verde):** Escreva o *mínimo* de código possível para fazer o teste passar.
+3.  **Refactor (Refatorar):** Melhore o código que você escreveu sem alterar seu comportamento, garantindo que o teste continue passando.
+
+Essa abordagem não só garante que seu código esteja coberto por testes desde o início, mas também incentiva a criação de um código mais simples, modular e fácil de manter!
+
+Para ir além, vocês podem até gerar relatórios de **cobertura de código** com Jest. Basta adicionar `--coverage` ao script de teste no `package.json`:
+
+```json
+// package.json
+{
+  ...
+  "scripts": {
+    "test": "jest --coverage"
+  },
+  ...
+}
+```
+Ao rodar `npm test` novamente, o Jest vai gerar um relatório detalhado mostrando a porcentagem do seu código que está sendo coberta pelos testes. Isso é crucial para entender quão "testado" seu código realmente está.
+
+É isso, pessoal! Vocês deram os primeiros passos sólidos em testes automatizados com Jest. Lembrem-se: testes não são um custo, são um **investimento** na qualidade e na sustentabilidade do seu software. Continuem explorando e testando sem medo! E qualquer dúvida, podem me procurar, porque aqui no Curso.Dev, a gente não deixa ninguém para trás. Bons códigos!
