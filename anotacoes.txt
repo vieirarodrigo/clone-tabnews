@@ -976,4 +976,22 @@ Valor gerado dinamicamente | Valor esperado
 
 
 
-## D4 - 
+## D4 - Criar um "Teste de Verdade"
+
+No MVC
+
+Criar ferramentas (Model)
+
+CommonJS (ESM)
+
+Trasnpilling
+
+expect(resultado)
+Softcoded
+
+.toBe(4)
+Hardcoded
+
+Teste não diz que o codigo está certo, mas que algo passou ou não em um teste
+
+TDD
