@@ -1345,33 +1345,46 @@ A aula de hoje tem muito mais conteúdos sobre API e HTTP, mas ela um objetivo m
 
 Anotações:
 
-Separar API em: 
-Breaking Change - Mudanças que quebram a API (Backward compatibility)
-Non-Breaking Change - Mudanças de algo adicional, novo
+Evoluir uma API é um processo delicado. É preciso adicionar novas funcionalidades sem quebrar a integração para os clientes que já a utilizam. A chave para isso é uma boa estratégia de versionamento.
 
-Consumidor - Esperar que uma API receba com o tempo mais propriedades
-Fonecedor - Usar estrategias para lançar novas versões em deixar de suportar versões antigas de API
+1. O Contrato da API: Breaking vs. Non-Breaking Changes
+Non-Breaking Change: Uma mudança aditiva, como adicionar uma nova propriedade à resposta. O consumidor deve estar preparado para receber mais dados do que o esperado sem quebrar.
 
-URI Path Versioning ou Header Versioning
+Breaking Change: Uma mudança que quebra a compatibilidade com versões anteriores (ex: renomear ou remover uma propriedade). O fornecedor da API precisa de uma estratégia para introduzir essas mudanças.
 
-Criar uma nova pasta `v1` dentro de `api` e colocar o arquivo `status.js` dentro dele
+Estratégias de Versionamento: As mais comuns são via URL (URI Path Versioning) ou via cabeçalho HTTP (Header Versioning). A aula foca na primeira.
 
-Dentro da pasta `v1` criar a pasta `status` e mover o 
-arquivo `status.js` dentro dela, renomear o arquivo para `index.js`
+2. Implementando o Versionamento via URL (Path Versioning)
+A abordagem é criar um "prefixo" na URL que indica a versão da API.
 
-Criar um espelho dentro de `integration` do caminho `api/v1/status' e criar o arquivo `get.test.js`
+Estrutura de Pastas:
 
-No protocolo http, precisa especificar o método
-Ex.: get, post, delete, put, patch
+Dentro da pasta /pages/api, cria-se uma pasta para a versão: /v1.
 
-``` get.test.js
+A lógica do endpoint (o antigo status.js) é movida para dentro da nova estrutura, resultando em: pages/api/v1/status/index.js.
+
+Resultado: O endpoint, que antes era /api/status, agora se torna /api/v1/status, indicando claramente que esta é a versão 1.
+
+3. Testando o Endpoint Versionado
+É crucial garantir que a nova URL funcione como esperado.
+
+Organização dos Testes: A estrutura de pastas dos testes de integração (/integration) deve espelhar a da API: integration/api/v1/status/get.test.js.
+
+Código do Teste (get.test.js):
+
+``` JavaScript
+
+// No protocolo HTTP, é preciso especificar o método (GET, POST, etc.)
 test("GET to /api/v1/status should return 200", async () => {
-  const response = await fetch("http://localhost:3000/api/v1/status")
+  const response = await fetch("http://localhost:3000/api/v1/status");
+  expect(response.status).toBe(200);
+});
 
-  expect(response.status).toBe(200)
-})
-```
+Observação sobre async/await:
+A função fetch realiza uma operação de rede, que é assíncrona (não acontece instantaneamente). Ela retorna uma Promise (promessa) de uma resposta futura.
+await é usado para pausar a execução da função até que a Promise do fetch seja resolvida (ou seja, até a resposta chegar).
 
-O fetch retorna uma Promise, promessa de valor de futuro. Precisa esperar a resposta do fetch, para isso usa await, mas await é assincrona, então a função deve ser async
+Toda função que usa await precisa ser declarada como async.
 
-Deletar a pasta de teste unitários e o arquivo da calculdora.
+4. Limpeza do Projeto
+"Deletar a pasta de teste unitários e o arquivo da calculadora": Este passo simboliza a evolução do projeto. O foco sai de exemplos didáticos (testes unitários de uma calculadora) e passa para testes mais realistas e de maior valor para o projeto: os testes de integração da API.
