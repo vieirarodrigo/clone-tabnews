@@ -1140,3 +1140,238 @@ Para ir além, vocês podem até gerar relatórios de **cobertura de código** c
 Ao rodar `npm test` novamente, o Jest vai gerar um relatório detalhado mostrando a porcentagem do seu código que está sendo coberta pelos testes. Isso é crucial para entender quão "testado" seu código realmente está.
 
 É isso, pessoal! Vocês deram os primeiros passos sólidos em testes automatizados com Jest. Lembrem-se: testes não são um custo, são um **investimento** na qualidade e na sustentabilidade do seu software. Continuem explorando e testando sem medo! E qualquer dúvida, podem me procurar, porque aqui no Curso.Dev, a gente não deixa ninguém para trás. Bons códigos!
+
+
+Dia 16: 
+
+🚗 Pista Rápida: Dia 16
+
+O Dia 16 é mais um daqueles dias especiais aqui no curso.dev porque mistura parte teórica, parte prática e também como ser um profissional melhor. E eu diria que esta última parte de ser um profissional melhor é o que faz grudar na sua mente a parte teórica e prática, tanto que no final dessa Pista Rápida aqui eu adicionei uma mensagem extra que eu não coloquei em nenhuma Pista Lenta 💪
+
+Anotações:
+
+Este dia focou em como garantir a qualidade e a comunicação em software, culminando em uma lição fundamental sobre como abordar a tecnologia.
+
+1. Estratégia de Testes: Garantindo a Qualidade
+A qualidade do software é verificada através de diferentes tipos de testes, organizados estrategicamente.
+
+Pirâmide de Testes: É o modelo clássico para pensar em testes.
+  * Base (Testes Unitários): Testam a menor parte do código (uma função, um componente) de forma isolada. São rápidos, baratos e devem existir em grande quantidade.
+  
+  * Meio (Testes de Integração): Verificam se diferentes unidades do sistema funcionam corretamente juntas. Exemplo: testar se a API, ao ser chamada, consegue de fato gravar os dados no banco de dados. São mais lentos e complexos que os testes unitários.
+  
+  * Topo (Testes de Ponta-a-Ponta): Simulam a jornada completa do usuário na aplicação. São os mais lentos e caros.
+
+Alternativas: Existem outros modelos além da pirâmide (como o "favo de mel"), mas o princípio de ter uma estratégia com diferentes camadas de teste permanece.
+
+2. APIs: A Linguagem da Comunicação entre Sistemas
+Os testes de integração frequentemente validam a comunicação entre diferentes partes de um sistema, que ocorre via APIs.
+
+API (Interface de Programação de Aplicações): É um contrato que define como um software "conversa" com outro. O conceito de "interface" é universal: pode ser uma interface gráfica (para um humano) ou uma interface programática (para outro sistema).
+
+Protocolo HTTP: É o conjunto de regras que possibilita a comunicação em APIs na web (requisições e respostas).
+
+curl: Uma ferramenta de linha de comando essencial para interagir e testar APIs diretamente, enviando requisições HTTP sem a necessidade de um navegador.
+
+Breaking Changes: Uma mudança em uma API que quebra a integração para quem já a utiliza (ex: renomear um campo). Exige cuidado e versionamento (v1 -> v2).
+
+Non-Breaking Changes: Uma mudança que não quebra a integração (ex: adicionar um novo campo opcional).
+
+3. A Mentalidade Chave: Nada é Mágico
+Esta é a lição que conecta tudo e eleva um profissional:
+
+Entender como as tecnologias funcionam "por dentro" é mais importante do que apenas usá-las.
+
+Achar que as ferramentas e processos funcionam por "magia" limita sua capacidade de resolver problemas complexos. Um profissional de destaque se diferencia pela curiosidade de desmontar a "caixa-preta", seja para entender melhor os protocolos de comunicação (HTTP), as ferramentas de teste (curl) ou as estratégias de qualidade (Pirâmide de Testes). Essa profundidade de conhecimento é o que realmente solidifica o aprendizado e a sua eficácia.
+
+
+
+
+
+A maior briga no universo dos Testes Automatizados
+Testes Automatizados é um assunto tão importante quanto ele é passível de gerar briga na internet e nessa aula eu vou mostrar o motivo. É muito importante você estar preparado para esse tipo de discussão, principalmente sobre a diferença entre testes unitários, integração e e2e 💪
+
+Pergunta
+Qual a sua definição sobre os tipos de teste que existem?
+
+Resposta
+Acredito que o meio termo seja o caminho como foi ensinado na aula.
+
+Anotações:
+
+Issue: Banco de dados (homologação e produção) #11
+
+-[] Criar endpoint `/status`
+-[] Subir Banco de Dados (Local)
+-[] Criar módulo `database.js`
+
+O debate sobre qual tipo de teste é "melhor" é comum porque cada um oferece um tipo diferente de confiança e possui custos distintos. A chave, como visto na aula, é encontrar um equilíbrio que funcione para o projeto, em vez de seguir um dogma.
+
+1. A Hierarquia dos Testes
+
+Pirâmide de Testes (Modelo Clássico): Propõe uma base larga de testes rápidos e baratos, e um topo estreito de testes lentos e caros.
+  * Unit (Unitários): Testa uma única função ou componente de forma isolada. Rápido, mas não garante que o sistema funciona como um todo.
+  
+  * Integration (Integração): Testa como duas ou mais partes do sistema interagem. Ex: Testa se a API consegue se comunicar com o banco de dados. Fornece mais confiança que um teste unitário.
+
+  * E2E (Ponta-a-Ponta): Simula a jornada completa do usuário através da interface gráfica (UI). É o teste que dá mais confiança, porém é o mais lento, caro e frágil.
+
+2. Alternativas e a Tendência "API First"
+
+Troféu de Teste / Favo de Mel: São modelos alternativos que questionam a hegemonia dos testes unitários e dão maior ênfase aos testes de integração.
+
+API First: Uma abordagem que prioriza o desenvolvimento e o teste da API. Nesse cenário, os testes de integração se tornam o foco principal, pois garantem que os contratos da API e suas conexões com outros serviços (como o banco de dados) são confiáveis.
+
+3. Passos Práticos para um Teste de Integração
+As anotações práticas são um exemplo de como construir um teste de integração para um endpoint que verifica a "saúde" da conexão com o banco de dados:
+
+  * Criar o módulo database.js: Isola a lógica de conexão com o banco de dados.
+
+  * Subir o Banco de Dados (Local): Preparar o ambiente para que o teste possa interagir com um banco de dados real.
+
+  * Criar o endpoint /status: Um endpoint na API que, ao ser acessado, irá utilizar o módulo database.js para verificar o status da conexão, provando que a integração entre a API e o banco está funcionando.
+
+
+
+
+Encostando a mão no Protocolo HTTP 🔥
+Essa aula vai ser muito massa, porque eu e você vamos encostar a mão no protocolo HTTP e isso não somente vai esclarecer na sua mente muita coisa sobre tudo o que existe na internet, como também vai ser a base para conseguir entender de fato (ou revisitar) muita coisa importante como: cookies, cabeçalhos, status codes, mas tirando toda a magia de onde esses dados vem, e tudo isso vai colocar você um passo mais próximo da senioridade, ou pelo menos, vai fazer você conseguir ter conversas sérias, muito mais avançadas e certeiras quando o contexto pedir por uma pessoa que tenha maturidade e experiência nesse assunto.
+
+Anotações:
+
+O objetivo desta aula é remover a "magia" do funcionamento da internet, entendendo na prática como o protocolo HTTP funciona. Esse conhecimento é a base para dominar tópicos como APIs, cabeçalhos e status codes, e é um passo fundamental para a senioridade técnica.
+
+1. O Papel das Interfaces e Abstrações
+API (Interface de Programação de Aplicações): O princípio fundamental é que "tudo é uma interface". Seja uma interface de usuário (gráfica) ou uma interface programável (API), o objetivo é o mesmo.
+
+Abstração: Interfaces são uma forma de abstração. Elas nos permitem usar uma funcionalidade sem precisar conhecer os detalhes de sua implementação interna. Elas definem um "contrato" de como interagir com um sistema.
+
+2. Criando um Endpoint de API com Next.js
+File-based Routing: No Next.js, o roteamento é baseado em arquivos. Ao criar um arquivo dentro da pasta /pages/api/, ele automaticamente se torna um endpoint de API público.
+
+Exemplo (/pages/api/status.js): Um arquivo que exporta uma função se torna um "ponto final" onde um cliente pode fazer uma requisição.
+
+``` JavaScript
+
+// A função recebe dois objetos principais:
+// request: Contém os dados da requisição que chega.
+// response: Contém os métodos para construir e enviar a resposta.
+function status(request, response) {
+  // .status(200) define o HTTP Status Code para "OK".
+  // .json({}) envia uma resposta no formato JSON.
+  response.status(200).json({ status: "ok" });
+}
+
+export default status;
+
+```
+
+3. A Diferença entre .send() e .json()
+O método .send() envia os dados, mas não especifica o tipo de conteúdo ou o charset.
+
+O método .json() é mais inteligente: ele automaticamente define o cabeçalho (Header) da resposta para Content-Type: application/json; charset=utf-8, informando ao cliente como interpretar os dados recebidos.
+
+4. "Encostando a Mão" no HTTP com curl
+curl é uma ferramenta de linha de comando para fazer requisições HTTP, permitindo ver a comunicação "crua" entre cliente e servidor.
+
+Comando: curl http://localhost:3000/api/status --verbose (ou -v).
+
+A flag --verbose: Revela todos os detalhes da transação HTTP que normalmente ficam ocultos.
+
+> (Request): Mostra os cabeçalhos que o seu cliente (curl) enviou para o servidor.
+
+< (Response): Mostra os cabeçalhos que o servidor enviou de volta como resposta.
+
+* (Curl Internals): Mostra informações sobre o processo de conexão que o curl está executando.
+
+Usar o curl --verbose é a forma prática de ver os cabeçalhos (como o Content-Type) e os status codes (como o 200) em ação, transformando teoria em conhecimento concreto.
+
+
+
+Não é magia! (é Protocolo)
+Eu sugiro você ter um único objetivo com estas aulas mais recentes, que é acreditar que, na area de tecnologia ou na programação num geral, não existe magia... não existe mesmo! Toda informação está em algum lugar e você pode não conhecer esse lugar e naturalmente assumir que é um local mágico, mas não é.
+
+Então nesta aula nós iremos cavucar um pouco mais o Protocolo HTTP na procura de informações que muitas pessoas encaram como "mágicas" 💪
+
+Anotações:
+
+O objetivo é provar que não existe "magia" em tecnologia. Toda informação está em algum lugar, e entender onde ela está é o que diferencia um profissional. Nesta aula, o foco é entender como um servidor compartilhado sabe qual site deve entregar para o cliente.
+
+1. O Problema: Um Servidor, Vários Sites (Virtual Hosts)
+
+Servidor Simples: No passado, um único endereço de IP geralmente correspondia a um único site. Acessar o IP abria o site.
+
+Virtual Host (Servidor Compartilhado): Hoje, é comum que um único servidor (com um só IP) hospede centenas ou milhares de sites diferentes (como os da Vercel).
+
+A "Magia": Se vários domínios (ex: siteA.com, siteB.com) apontam para o mesmo IP, como o servidor sabe qual deles o usuário quer ver?
+
+2. A Solução: O Cabeçalho Host do Protocolo HTTP
+A resposta não é mágica, está dentro do protocolo HTTP.
+
+Quando você acessa um site, seu navegador primeiro usa o DNS para descobrir o IP do servidor daquele domínio.
+
+Em seguida, ele envia uma requisição HTTP para esse IP. Dentro dessa requisição, existe um cabeçalho (header) chamado Host.
+
+O valor do cabeçalho Host é o domínio que você digitou (ex: Host: siteA.com).
+
+O servidor da Vercel (ou qualquer outro com Virtual Hosts) lê este cabeçalho Host para saber qual dos múltiplos sites que ele hospeda deve ser entregue ao cliente.
+
+3. Provando o Conceito com curl
+
+Podemos simular esse processo manualmente para provar que é o cabeçalho Host que comanda a operação.
+
+Comando: curl ip_do_servidor --insecure --verbose --header 'Host: nome_do_site.com'
+
+Análise do Comando:
+
+curl ip_do_servidor: Faz a requisição diretamente ao IP do servidor, pulando a etapa do DNS.
+
+--header 'Host: nome_do_site.com': Aqui está o segredo. Estamos manualmente adicionando o cabeçalho HTTP, dizendo ao servidor qual site queremos acessar.
+
+--insecure: Necessário porque o certificado de segurança (HTTPS) geralmente está associado ao domínio, e não ao IP. Sem essa flag, o curl daria um erro de certificado.
+
+--verbose: Exibe todos os detalhes da requisição e da resposta, permitindo ver o cabeçalho Host que enviamos em ação.
+
+Este exercício prático demonstra que a seleção do site não é mágica, mas sim o resultado da leitura de uma informação clara e acessível enviada através do protocolo HTTP.
+
+
+
+
+
+
+
+Versionamento de API e Endpoint "/status"
+A aula de hoje tem muito mais conteúdos sobre API e HTTP, mas ela um objetivo muito claro e que já está super encaminhado, que é completar a tarefa Criar endpoint /status, e em cima disto iremos aprender sobre Versionamento de API e Breaking Changes 🤝
+
+Anotações:
+
+Separar API em: 
+Breaking Change - Mudanças que quebram a API (Backward compatibility)
+Non-Breaking Change - Mudanças de algo adicional, novo
+
+Consumidor - Esperar que uma API receba com o tempo mais propriedades
+Fonecedor - Usar estrategias para lançar novas versões em deixar de suportar versões antigas de API
+
+URI Path Versioning ou Header Versioning
+
+Criar uma nova pasta `v1` dentro de `api` e colocar o arquivo `status.js` dentro dele
+
+Dentro da pasta `v1` criar a pasta `status` e mover o 
+arquivo `status.js` dentro dela, renomear o arquivo para `index.js`
+
+Criar um espelho dentro de `integration` do caminho `api/v1/status' e criar o arquivo `get.test.js`
+
+No protocolo http, precisa especificar o método
+Ex.: get, post, delete, put, patch
+
+``` get.test.js
+test("GET to /api/v1/status should return 200", async () => {
+  const response = await fetch("http://localhost:3000/api/v1/status")
+
+  expect(response.status).toBe(200)
+})
+```
+
+O fetch retorna uma Promise, promessa de valor de futuro. Precisa esperar a resposta do fetch, para isso usa await, mas await é assincrona, então a função deve ser async
+
+Deletar a pasta de teste unitários e o arquivo da calculdora.
