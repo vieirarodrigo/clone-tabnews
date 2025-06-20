@@ -1388,3 +1388,283 @@ Toda função que usa await precisa ser declarada como async.
 
 4. Limpeza do Projeto
 "Deletar a pasta de teste unitários e o arquivo da calculadora": Este passo simboliza a evolução do projeto. O foco sai de exemplos didáticos (testes unitários de uma calculadora) e passa para testes mais realistas e de maior valor para o projeto: os testes de integração da API.
+
+
+
+
+
+
+🚗 Pista Rápida: Dia 17
+Além de conversarmos sobre tudo que foi feito no Dia 17, como as 3 partes que eu considero na escolha de um Banco de Dados, entender o motivo do Docker ter "dominado" o mundo das virtualizações, depois como subir e se conectar a uma instância de Postgres de forma local utilizando o Docker Compose, além de tudo isso, eu passo mais um pouco da minha visão sobre o que faz um sênior ser um sênior na nossa área 💪
+
+Qual Banco de Dados escolher?
+Eu vou começar essa aula de um jeito estranho mas... e se eu te falar que talvez eu fiz a pior escolha de qual banco de dados usar para o TabNews e eu não me arrependo nenhum pouco? 🔥
+
+Link para issue
+Segue abaixo o link para a issue que eu comentei no vídeo:
+
+https://github.com/filipedeschamps/tabnews.com.br/issues/61
+
+Anotações: 
+
+A aula aborda a escolha de um banco de dados não como uma busca pela ferramenta "perfeita", mas como uma decisão estratégica. A reflexão sobre a "pior escolha" para o TabNews, da qual não há arrependimento, ilustra que a melhor tecnologia é aquela que resolve o problema e que a equipe domina.
+
+Os 3 Componentes na Escolha de um Banco de Dados
+Para tomar uma decisão "Future-Proof" (à prova de futuro), é preciso pensar em três camadas:
+
+O SGBD (Sistema de Gerenciamento de Banco de Dados): É a escolha do banco de dados em si.
+
+Tipos: Relacional (SQL), Não Relacional (NoSQL), Série Temporal, Espacial, etc.
+
+Dúvida Comum: A decisão mais frequente no mercado hoje é entre SQL vs. NoSQL.
+Exemplo: PostgreSQL (SQL).
+
+A Forma de Consulta (Query): Como a sua aplicação vai "conversar" com o banco de dados.
+
+Com ORM (Object-Relational Mapper): Ferramentas que mapeiam tabelas do banco para objetos no seu código, abstraindo a escrita de SQL.
+Exemplos: Sequelize, Prisma.
+
+Sem ORM (Driver Nativo): Usar uma biblioteca para se conectar e escrever as consultas SQL diretamente.
+Exemplo: node-postgres (pacote pg).
+
+As Migrações (Migrations): É o sistema de versionamento para a estrutura (schema) do seu banco de dados.
+
+Função: São arquivos com instruções que modificam o banco de dados de forma controlada e rastreável (ex: criar uma tabela, adicionar uma coluna).
+Exemplo de Ferramenta: node-pg-migrate.
+
+Outros Conceitos Abordados
+Docker: Foi mencionado como a ferramenta que "dominou" a virtualização por facilitar a criação de ambientes de desenvolvimento consistentes, como subir uma instância local do Postgres via Docker Compose.
+
+A Visão Sênior: A maturidade profissional não está em sempre escolher a tecnologia da moda, mas em entender as consequências de cada escolha (SGBD, Query, Migrations) e optar por um conjunto de ferramentas que a equipe consiga manter e evoluir com segurança.
+
+
+
+
+
+
+Por que o Docker dominou o mundo?
+Eu vim de uma época que me dói lembrar como que era configurar os serviços num ambiente de desenvolvimento local, porque toda hora algo mágico acontecia 😅 E nesta Pista Lenta vamos conferir a evolução deste assunto, até entrarmos na época dos containers.
+
+Anotações:
+
+Configurar ambientes de desenvolvimento era um processo frágil e inconsistente, conhecido pelo problema do "funciona na minha máquina". O Docker resolveu isso de uma forma muito mais eficiente que as soluções anteriores.
+
+1. O Problema Original: A Inconsistência do "Host"
+No passado, o mesmo tutorial ou código poderia falhar em máquinas diferentes por pequenas variações no ambiente local (o "Host"), como:
+
+  * Hardware diferente
+  * Sistema Operacional (versão, patches de segurança)
+  * Softwares instalados (antivírus, outros programas)
+  * Versão da linguagem de programação
+  * Até mesmo o fuso horário
+
+2. Primeira Solução: Máquinas Virtuais (VMs)
+O que são: As VMs surgiram para criar um ambiente padronizado, emulando uma máquina completa (hardware e sistema operacional) dentro da sua máquina física.
+
+Problema: Apesar de resolverem a inconsistência, as VMs eram muito pesadas, consumindo grande quantidade de disco, memória e processamento. Ferramentas como o Vagrant tentaram facilitar seu uso, mas o problema de performance continuava.
+
+3. A Revolução: Contêineres e o Docker
+O Docker introduziu uma abordagem mais inteligente e leve, baseada em dois recursos do Kernel do Linux:
+
+Namespaces: Permitem isolar os processos. Um processo rodando em um contêiner não consegue "enxergar" ou interferir nos processos de outro contêiner ou do próprio Host.
+
+cgroups: Permitem controlar e limitar os recursos (CPU, memória, etc.) que cada processo pode consumir.
+
+O Docker empacotou essas tecnologias em uma ferramenta fácil de usar.
+
+Comparação dos Modelos: VM vs. Contêiner
+A grande vantagem do Docker fica clara ao comparar as "camadas" de cada modelo:
+
+Modelo com Máquina Virtual (VM):
+
+Máquina (Host)
+SO (Host)
+Virtualizador (Hypervisor)
+SO Convidado (Guest OS) <- Camada pesada e redundante
+Aplicação / Banco de Dados
+
+Modelo com Contêiner (Docker):
+
+Máquina (Host)
+SO (Host)
+Container Engine (Docker)
+Aplicação / Banco de Dados
+
+A Diferença Chave: Contêineres compartilham o Kernel do Sistema Operacional do Host. Eles não precisam carregar um sistema operacional inteiro como as VMs, o que os torna drasticamente mais leves, rápidos e eficientes em recursos. Essa eficiência é o principal motivo pelo qual o Docker dominou o mundo da virtualização e desenvolvimento.
+
+
+
+
+
+
+Subir Banco de Dados (Local)
+A aula de hoje vai ser bastante prática, pois iremos usar o docker compose para subir um Banco de Dados na sua versão Local 🎉
+
+Links
+Página oficial do Postgres no Docker Hub
+
+Anotações:
+
+O objetivo desta aula prática é utilizar o Docker Compose para criar e gerenciar um contêiner com um banco de dados PostgreSQL, simplificando radicalmente a configuração do ambiente de desenvolvimento local.
+
+1. Conceitos Fundamentais
+Dockerfile vs. Imagem vs. Contêiner:
+
+Dockerfile: É o "código-fonte", um arquivo de texto com instruções para construir uma imagem.
+
+Imagem: É o "binário" ou "pacote" gerado a partir de um Dockerfile. Fica salvo e pode ser compartilhado.
+
+Contêiner: É uma instância em execução de uma imagem.
+
+Docker Hub: É um repositório público de imagens Docker, similar ao GitHub para código. É de lá que vamos baixar a imagem oficial do postgres.
+
+Docker Compose: Uma ferramenta para definir e rodar aplicações Docker com múltiplos contêineres (como um banco de dados e um Mailcatcher) a partir de um único arquivo de configuração.
+
+2. Passos Práticos para Subir o Banco de Dados
+Passo 1: Verificar as Ferramentas
+Antes de começar, verifique se o Docker e o Docker Compose estão instalados com os comandos:
+
+``` Bash
+
+docker --version
+docker-compose version
+
+```
+
+Passo 2: Criar o Arquivo de Configuração
+Crie um arquivo na raiz do seu projeto chamado compose.yaml (ou docker-compose.yml).
+
+Passo 3: Definir o Serviço do Banco de Dados
+Dentro do arquivo compose.yaml, defina o serviço do banco de dados:
+
+``` YAML
+
+services:
+  database:
+    image: "postgres:16-alpine"
+    environment:
+      # Define a senha do superusuário do Postgres
+      POSTGRES_PASSWORD: "local_password"
+
+```
+
+services: Inicia a declaração dos contêineres que o Compose vai gerenciar.
+
+database: Um nome que você escolhe para o seu serviço de banco de dados.
+
+image: "postgres:16-alpine": Especifica qual imagem usar do Docker Hub.
+
+postgres: O nome da imagem oficial.
+
+16-alpine: A "tag", indicando a versão 16 do Postgres na sua variante "alpine", que é mais leve.
+
+environment: Permite passar variáveis de ambiente para dentro do contêiner. POSTGRES_PASSWORD é uma variável obrigatória exigida pela imagem do Postgres para a configuração inicial.
+
+Passo 4: Iniciar o Contêiner
+No terminal, na mesma pasta onde está o arquivo compose.yaml, execute o comando:
+
+``` Bash
+
+docker compose up
+
+```
+
+Este comando irá ler o arquivo, baixar a imagem do Postgres (se ainda não tiver), criar e iniciar o contêiner do banco de dados com as configurações definidas. Ao final do processo, você terá um banco de dados PostgreSQL rodando localmente, isolado e pronto para ser usado pela sua aplicação.
+
+
+
+
+Se conectando no Banco de Dados (Local)
+Eu deixei você na cara do gol na aula anterior, com o container rodando e servindo o Postgres, mas não sendo possível se conectar nele. E olha só que engraçado, a aula de hoje vai começar tentando se conectar nele mesmo assim para entender de verdade porque não é possível, e por fim, se conectar nele com sucesso 🎉
+
+Link para o commit feito na aula
+add compose config file with database service
+
+Anotações:
+
+O tema central é que "conhecer o problema é conhecimento". Entender por que algo falha é uma etapa crucial do aprendizado. Nesta aula, o objetivo é rodar um contêiner de banco de dados e conseguir se conectar a ele a partir da sua máquina (Host).
+
+1. Rodando o Contêiner e Verificando seu Estado
+Subindo o Contêiner: O comando docker compose up inicia os serviços. Por padrão, ele "prende" o seu terminal.
+
+Para rodar em segundo plano (detached mode), use: docker compose up -d.
+
+Verificando Contêineres:
+docker ps: Lista os contêineres que estão em execução.
+
+docker ps -a (ou --all): Lista todos os contêineres, inclusive os que pararam.
+
+Inspecionando Logs: Se algo der errado, os logs são o primeiro lugar para procurar.
+
+docker logs nome_do_contêiner: Exibe a saída de um contêiner específico.
+
+Exit Codes: Assim como os Status Codes HTTP (200=sucesso, 500=erro), os contêineres usam Exit Codes para indicar seu estado final.
+
+Exit Code 0: O processo terminou com sucesso.
+Exit Code diferente de 0: O processo terminou com erro.
+
+2. A Tentativa de Conexão (e o Erro Esperado)
+O objetivo é se conectar ao Postgres dentro do contêiner usando o cliente psql.
+
+Instalar o Cliente: Primeiro, é preciso ter o cliente do PostgreSQL na máquina Host.
+
+``` Bash
+
+sudo apt update
+sudo apt install postgresql-client
+
+```
+
+Tentar a Conexão: O comando psql precisa saber o endereço, porta e credenciais.
+ 
+``` Bash
+
+psql --host=localhost --port=5432 --username=postgres
+
+```
+
+O Problema: Este comando vai falhar. O motivo é que, por padrão, o Docker não expõe as portas de um contêiner para a máquina Host. O "mundo de fora" não consegue acessar o que está rodando "lá dentro".
+
+3. A Solução: Expor a Porta no compose.yaml
+Para corrigir o problema, é preciso mapear uma porta da sua máquina (Host) para uma porta do contêiner.
+
+Adicionar ao compose.yaml:
+
+``` YAML
+
+services:
+  database:
+    # ... outras configurações ...
+    ports:
+      # Mapeia a porta 5432 do Host para a 5432 do Contêiner
+      - "5432:5432"
+
+```
+
+Recriar o Contêiner: As mudanças no compose.yaml só têm efeito se o contêiner for recriado.
+
+``` Bash
+
+# Opção 1: Parar tudo e subir de novo
+docker compose down
+docker compose up -d
+
+# Opção 2: Forçar a recriação diretamente
+docker compose up -d --force-recreate
+
+```
+
+Sucesso! Agora o comando psql irá funcionar. Você pode testar com uma consulta simples (SELECT 1 + 1;) e sair com \q.
+
+4. Organização e Boas Práticas
+Parar os Serviços: Para parar e remover os contêineres, use docker compose down.
+
+Organizar Arquivos: Mova o compose.yaml para uma pasta dedicada, como infra/.
+
+Usar Arquivo Específico: Ao rodar os comandos, especifique o caminho do arquivo.
+
+``` Bash
+
+docker compose -f infra/compose.yaml up
+
+```
