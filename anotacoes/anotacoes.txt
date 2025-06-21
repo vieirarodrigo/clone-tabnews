@@ -1959,3 +1959,53 @@ Reutilização do Volume: Ao reiniciar o contêiner (docker compose up), ele det
 Commit: Após as alterações, salvar o progresso no Git (git commit).
 
 Atualizar a Issue: Criar uma nova tarefa no quadro de trabalho, como - [ ] Finalizar retorno do endpoint /status, para dar continuidade ao desenvolvimento.
+
+
+
+
+
+
+
+
+
+
+🚗 Pista Rápida: Dia 19
+Além de revisar tudo o que aconteceu no Dia 19, eu bato de novo na tecla do que é algo ser semântico. Esta é uma palavra que quero usar mais vezes, pois fazer coisas não semânticas inevitavelmente levam a muita confusão na evolução de um sistema, principalmente quando o código é passado de uma pessoa para outra 🤝
+
+Foi certo fazer o commit do .env?
+Como eu antecipei na última Pista Lenta do Dia 18, algumas lapidações importantes precisam ser feitas, incluindo em conhecimento, e eu acho melhor a gente não deixar isso para depois e fazer agora. Então eu gostaria de começar tocando no ponto de que se foi certo ou não fazer o commit do arquivo .env 🤝
+
+Artigo sobre remover dados sensíveis
+Este é o artigo que eu comentei sobre remover dados sensíveis do histórico do seu repositório: Remover dados confidenciais de um repositório
+
+Comentário em destaque
+Sugiro ler esse comentário do aluno maion explicando como ele usou o BFG para remover dados sensíveis de dois arquivos do seu repositório 💪
+
+Para quem quiser saber como eu usei o BFG para corrigir meu repositório que havia vazado dados em dois arquivos: .env e cred.json
+
+1 - Baixei o arquivo .jar do BFG Repo-Cleaner do repositório e coloquei na mesma pasta que clonarei o projeto.
+
+2 - Clonei meu repositório com o --mirror:
+git clone --mirror git://example.com/repo_problematico.git
+
+3 - Apaguei os arquivos com os comandos:
+java -jar bfg-1.14.0.jar --delete-files cred.json repo_problematico.git
+e
+java -jar bfg-1.14.0.jar --delete-files .env repo_problematico.git
+
+4 - entrar na pasta do repositório problemático:
+cd repo_problematico.git
+
+5 - Rodar os comandos conforme a documentação do BFG:
+git reflog expire --expire=now --all && git gc --prune=now --aggressive
+
+6 - git push
+
+E tudo pronto.
+EDIT: Acabei escrevendo no TabNews sobre isso. Gastem seus TabCoins comigo lá!! hahaha
+
+Link para o commit feito na aula
+move .env file to .env.development
+
+Anotações:
+
