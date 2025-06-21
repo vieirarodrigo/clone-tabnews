@@ -1668,3 +1668,294 @@ Usar Arquivo Específico: Ao rodar os comandos, especifique o caminho do arquivo
 docker compose -f infra/compose.yaml up
 
 ```
+
+
+
+
+
+
+
+
+
+
+🚗 Pista Rápida: Dia 18
+Como sempre, vamos passar rapidamente pelas principais coisas que aconteceram no Dia 18 (e aconteceram muitas coisas), mas tem algo em especial que eu não deixei claro em nenhuma Pista Lenta que eu quero falar aqui nessa Pista Rápida e que aconteceu 25 vezes 😍
+
+Criar módulo "database.js"
+Nesta aula iremos criar o módulo database.js que é uma abstração da nossa infraestrutura e que vai ser responsável por abrir conexão com o Banco de Dados e enviar queries pra ele. Para isto, vamos instalar o módulo pg na versão 8.11.3 🤝
+
+Comentário destaque ⭐️
+Depois de ver a aula, sugiro ler este comentário que fiz sobre a dúvida de outro aluno, pois pode ajudar a clarear alguns pontos importantes sobre a utilidade do database.js 💪
+
+Anotações:
+
+O objetivo da aula é criar uma abstração para o acesso ao banco de dados. Em vez de espalhar a lógica de conexão por todo o código, ela será centralizada em um único módulo (database.js), tornando a aplicação mais limpa, segura e fácil de manter.
+
+1. Preparação do Ambiente
+Instalar o Driver do Postgres: Para que o Node.js possa se comunicar com o PostgreSQL, é preciso instalar o driver correspondente.
+
+``` Bash
+
+npm install pg@8.11.3
+
+``` 
+
+Iniciar os Serviços:
+Subir o banco de dados em segundo plano:
+
+``` Bash
+
+docker compose -f infra/compose.yaml up -d
+
+``` 
+
+Iniciar a aplicação em modo de desenvolvimento:
+
+``` Bash
+
+npm run dev
+
+``` 
+
+Ajuste nos Testes: Para garantir que todos os testes sejam re-executados ao salvar um arquivo, o script de teste no package.json é alterado para:
+
+``` JSON
+
+"test:watch": "jest --watchAll"
+
+``` 
+
+2. Construindo o Módulo database.js
+Dentro da pasta infra, é criado o arquivo database.js. Ele será o único lugar do sistema que sabe como se conectar e executar comandos no banco de dados.
+
+Código do infra/database.js:
+
+``` JavaScript
+
+import { Client } from 'pg';
+
+async function query(queryObject) {
+  const client = new Client({
+    host: 'localhost',
+    port: 5432,
+    user: 'postgres',
+    database: "postgres",
+    password: "local_password"
+  });
+  
+  await client.connect();
+  const result = await client.query(queryObject);
+  await client.end();
+  
+  return result;
+}
+
+export default {
+  query: query,
+};
+
+``` 
+
+new Client({...}): Cria uma nova instância do cliente Postgres com as credenciais de acesso, que devem ser as mesmas definidas no compose.yaml.
+
+client.connect(): Abre a conexão com o banco de dados.
+
+client.query(): Executa a consulta SQL recebida.
+
+client.end(): Fecha a conexão. Este é um passo crucial para não deixar conexões abertas desnecessariamente.
+
+3. Utilizando o Módulo
+O endpoint /api/v1/status/index.js é modificado para usar a nova abstração.
+
+``` JavaScript
+
+import database from "../../../../infra/database.js";
+
+// ... dentro da função do endpoint ...
+const result = await database.query('SELECT 1 + 1 as sum;');
+console.log(result.rows); // Exibe o resultado da consulta
+
+``` 
+
+O Grande Benefício: Agora, o endpoint de status (e qualquer outro) não precisa saber nada sobre o pacote pg ou sobre como abrir e fechar conexões. 
+
+Ele apenas chama database.query(). Se no futuro for preciso trocar o driver, as credenciais ou a lógica de conexão, a mudança será feita em um único lugar: o arquivo database.js.
+
+
+
+A importância das Variáveis de Ambiente
+Quando eu realmente entendi o poder e a simplicidade das Variáveis de Ambiente, o meu cérebro deu alguns cliques muito importantes. Um deles foi de sempre que possível deixar a camada da aplicação stateless (sem estado) e isso se conecta perfeitamente com várias formas profissionais de se construir e escalar uma aplicação 💪
+
+Anotações:
+
+O entendimento de Variáveis de Ambiente é um "clique" fundamental para o desenvolvimento de software profissional, pois elas são a chave para criar aplicações flexíveis, escaláveis e, principalmente, Stateless (sem estado).
+
+1. O Que São Variáveis de Ambiente?
+São configurações externas que são "injetadas" em uma aplicação dependendo do ambiente onde ela está rodando. Em vez de ter dados fixos no código (hardcoded), a aplicação os lê do seu ambiente.
+
+O Problema que Resolvem: Uma configuração que funciona em localhost (ex: senha do banco de dados local) não vai funcionar em homologação ou produção. Variáveis de Ambiente permitem que o mesmo código funcione em todos os lugares, apenas mudando os valores de acordo com o contexto.
+
+2. O Objetivo: Uma Aplicação "Stateless"
+Stateless (Sem Estado): É um princípio de arquitetura onde a camada da aplicação não armazena nenhuma informação persistente. Ela processa uma requisição e esquece. Todo o "estado" (dados de usuários, sessões, etc.) é delegado a serviços externos.
+
+Separação de Camadas: A ideia é separar a camada de Persistência (o banco de dados) da camada de Aplicação.
+
+Antes: Backend monolítico (Interface + Aplicação + Persistência)
+
+Depois: Aplicação (Interface + Lógica) <-> Serviço de Banco de Dados
+
+3. Como as Variáveis de Ambiente Conectam Tudo
+As Variáveis de Ambiente são a "cola" que permite à aplicação stateless encontrar e se comunicar com os serviços de persistência.
+
+A aplicação é programada para buscar as credenciais e endereços (como host, usuário e senha do banco) a partir das variáveis de ambiente.
+
+Em localhost: O ambiente fornece as variáveis com os dados do seu banco de dados local.
+
+Em Produção: O ambiente de produção (servidor, contêiner) fornece as variáveis com os dados do banco de dados de produção.
+
+Essa abordagem torna a aplicação extremamente portátil e escalável. É possível subir múltiplas instâncias idênticas da mesma aplicação, e cada uma se conectará ao banco de dados correto simplesmente lendo as variáveis do ambiente em que foi iniciada.
+
+
+
+Variáveis de Ambiente no Código
+Qual a relação entre Variáveis de Ambiente, process, env e o que entra dentro do seu código? Vamos ver tudo isso dentro dessa aula e deixar sua aplicação 100% stateless 💪
+
+Anotações:
+
+O objetivo é externalizar todas as configurações sensíveis ou que mudam entre ambientes (desenvolvimento, produção), tornando a aplicação 100% stateless e segura.
+
+1. Acessando Variáveis de Ambiente no Node.js
+process.env: Em Node.js, todas as variáveis de ambiente do processo atual ficam disponíveis em um objeto global chamado process.env.
+
+Aplicação no Código: Para usar uma variável, basta acessá-la como uma propriedade deste objeto. No arquivo database.js, os valores fixos ("hardcoded") são substituídos:
+
+Antes:
+
+``` JavaScript
+
+password: "local_password",
+
+```
+
+Depois:
+
+``` JavaScript
+
+password: process.env.POSTGRES_PASSWORD,
+
+``` 
+
+2. Como Fornecer as Variáveis para a Aplicação
+Existem duas formas principais para o ambiente de desenvolvimento local:
+
+Método 1: Pela Linha de Comando
+Você pode definir a variável diretamente no comando que inicia a aplicação. Ela será válida apenas para a execução daquele comando.
+
+``` Bash
+
+POSTGRES_PASSWORD=local_password npm run dev
+
+``` 
+
+Dica de Histórico: Iniciar um comando com um espaço em branco ("comando") geralmente evita que ele seja salvo no histórico do terminal (history), útil para não expor senhas.
+
+Método 2: Usando um Arquivo .env (com dotenv)
+Esta é a abordagem mais comum e organizada para desenvolvimento local.
+
+Criar o arquivo .env: Na raiz do projeto, crie um arquivo chamado .env. Este arquivo nunca deve ser enviado para o repositório (Git), pois contém informações sensíveis.
+
+Adicionar as Variáveis: Dentro do .env, liste todas as variáveis de configuração no formato CHAVE=VALOR.
+
+``` Code snippet
+
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres
+POSTGRES_DB=postgres
+POSTGRES_PASSWORD=local_password
+
+``` 
+
+(Nota: Para que isso funcione, a biblioteca dotenv precisa ser instalada e configurada no ponto de entrada da sua aplicação).
+
+3. Resultado Final no database.js
+Com as variáveis definidas no ambiente (seja via comando ou .env), o código do database.js fica limpo, seguro e flexível, lendo todas as suas configurações do process.env:
+
+``` JavaScript
+
+new Client({
+  host: process.env.POSTGRES_HOST,
+  port: process.env.POSTGRES_PORT,
+  user: process.env.POSTGRES_USER,
+  database: process.env.POSTGRES_DB,
+  password: process.env.POSTGRES_PASSWORD,
+});
+
+``` 
+
+
+
+
+
+Variáveis de Ambiente no Docker Compose
+Como fazer para evitar de ter Variáveis de Ambiente duplicadas no arquivo compose.yaml, no arquivo databse.js e fazer tudo puxar do .env? É isso o que iremos ver nesta aula, fora se deparar com um mistério... vamos ver se você sabe a resposta 🤝
+
+Mistério: Por quê o Banco de Dados rodou?
+Por que no minuto 02:22 da aula, ao trocar a Variável de Ambiente de POSTGRES_DATABASE para POSTGRES_DB no arquivo .env, a conexão com o Banco de Dados continuou funcionando, se o database.js estava pedindo ainda pela antiga Variável de Ambiente POSTGRES_DATABASE? Você vai precisar investigar para encontrar esta resposta 💪
+
+Comentário em destaque
+Caso queira saber qual a resposta, sugiro ler esse comentário que está bastante completo 🤝
+
+Link para o commit feito na aula
+add database.js and .env files
+
+Anotações: 
+O objetivo desta aula é eliminar a duplicação de configurações, fazendo com que tanto a aplicação (database.js) quanto a infraestrutura (compose.yaml) utilizem o arquivo .env como a única fonte da verdade para as variáveis de ambiente.
+
+1. O Problema: Configurações Duplicadas
+Manter as mesmas variáveis de ambiente (como a senha do banco) hardcoded no compose.yaml e também sendo lidas via process.env na aplicação é ineficiente e propenso a erros.
+
+2. A Solução: Usar env_file no Docker Compose
+O Docker Compose possui uma diretiva chamada env_file que o instrui a carregar as variáveis de ambiente para um serviço diretamente de um arquivo, como o .env.
+
+Passos da Implementação:
+
+Padronizar Variáveis: Garanta que os nomes das variáveis estejam consistentes. Por exemplo, altere POSTGRES_DATABASE para POSTGRES_DB tanto no .env quanto no database.js.
+
+Atualizar o compose.yaml: Remova as variáveis de ambiente definidas manualmente e aponte para o arquivo .env.
+
+``` YAML
+
+services:
+  database:
+    image: "postgres:16-alpine"
+    # A seção "environment" foi removida
+    env_file:
+      - "../.env" # Carrega as variáveis do .env na raiz do projeto
+    ports:
+      - "5432:5432"
+
+``` 
+
+Aplicar as Mudanças: Reinicie os contêineres para que a nova configuração seja aplicada.
+
+``` Bash
+
+docker compose -f infra/compose.yaml up -d --force-recreate
+
+``` 
+
+3. O Mistério: Por que a Conexão Continuou Funcionando?
+O Cenário: Em um momento da aula, o .env foi alterado para POSTGRES_DB, mas o database.js ainda esperava a variável antiga (POSTGRES_DATABASE), que agora estava indefinida. Mesmo assim, a conexão com o banco de dados funcionou.
+
+A Explicação (Não é magia!):
+Persistência de Dados do Docker: Por padrão, o Docker cria um "volume" para o contêiner do Postgres, onde os dados do banco são salvos. Isso evita que você perca tudo ao reiniciar o contêiner.
+
+Inicialização do Postgres: As variáveis POSTGRES_DB e POSTGRES_USER são usadas pela imagem do Postgres apenas na primeira vez que o contêiner é criado, para inicializar o banco de dados.
+
+Reutilização do Volume: Ao reiniciar o contêiner (docker compose up), ele detectou o volume com os dados já existentes e simplesmente ignorou as variáveis de inicialização (POSTGRES_DB), pois o banco já estava criado. A conexão continuou funcionando com a base de dados que já existia.
+
+4. Próximos Passos no Fluxo de Trabalho
+Commit: Após as alterações, salvar o progresso no Git (git commit).
+
+Atualizar a Issue: Criar uma nova tarefa no quadro de trabalho, como - [ ] Finalizar retorno do endpoint /status, para dar continuidade ao desenvolvimento.
