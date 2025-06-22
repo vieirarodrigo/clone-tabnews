@@ -2170,3 +2170,101 @@ Muito obrigado por chamar a atenção para esse detalhe, meu caro! 🤝
 
 Anotações:
 
+O objetivo da aula é refinar o projeto, criando scripts padronizados para gerenciar os serviços (como o banco de dados). Essa padronização aumenta a produtividade do time de desenvolvimento e prepara o terreno para a futura implementação de Continuous Integration (CI).
+
+1. O Objetivo: Simplificar a Gestão dos Serviços
+Em vez de todos precisarem memorizar ou procurar os longos comandos do Docker Compose, a ideia é criar atalhos simples e semânticos dentro do package.json.
+
+2. A Implementação: Scripts no package.json
+Os seguintes scripts foram adicionados ao package.json:
+
+``` JSON
+
+"scripts": {
+  "dev": "npm run services:up && next dev",
+  "services:up": "docker compose -f infra/compose.yaml up -d",
+  "services:stop": "docker compose -f infra/compose.yaml stop",
+  "services:down": "docker compose -f infra/compose.yaml down"
+}
+
+``` 
+
+npm run services:up: Inicia os contêineres dos serviços em segundo plano (-d).
+
+npm run services:stop: Pausa os contêineres sem removê-los.
+
+npm run services:down: Para e remove os contêineres da aplicação.
+
+npm run dev: O comando principal para o desenvolvedor. Ele primeiro garante que os serviços estejam no ar (services:up) e depois inicia a aplicação Next.js.
+
+3. Detalhe Técnico: docker compose down e a Remoção de Volumes
+Uma observação importante foi discutida na aula:
+
+Comportamento Padrão: O comando docker compose down por si só não apaga os volumes de dados associados aos contêineres. Para isso, seria necessário usar a flag --volumes (ou -v).
+
+Por que Funciona no Nosso Caso: A imagem do postgres utilizada neste projeto cria um volume anônimo. Diferente de volumes nomeados, os anônimos não são reutilizados quando um novo contêiner é criado. Portanto, a cada ciclo de down e up, um novo contêiner é criado com um novo volume "zerado", o que atende perfeitamente ao nosso objetivo de ter um banco de dados limpo para desenvolvimento.
+
+4. Dicas de Produtividade e Fluxo de Trabalho
+Fuzzy Search: Em editores como o VS Code, usar Ctrl + P permite buscar arquivos pelo nome rapidamente.
+
+Ir para Linha: Na busca por arquivos, usar @ após o nome (ex: package.json@15) leva diretamente para a linha desejada.
+
+Finalizando o Ciclo de Trabalho:
+git commit: Salvar as alterações no repositório.
+
+git push: Enviar as alterações para o servidor remoto.
+
+Atualizar a Issue: Marcar as tarefas relacionadas (Mover .env, Adicionar jsconfig.json, Adicionar scripts) como concluídas, mantendo o gerenciamento do projeto organizado.
+
+Flashcards: Dia 19
+FRENTE:
+Por que renomear o arquivo .env para .env.development é uma boa prática de semântica?
+
+VERSO:
+Porque o nome .env.development deixa explícito que o arquivo contém configurações apenas para o ambiente de desenvolvimento, enquanto .env é um nome genérico que pode ser confundido com um arquivo de segredos de produção. A semântica clara evita erros.
+
+FRENTE:
+Em um framework como o Next.js, qual a ordem de prioridade ao carregar variáveis de ambiente de diferentes fontes?
+
+VERSO:
+
+process.env (variáveis do sistema/shell)
+.env.development (arquivo do ambiente específico)
+.env (arquivo genérico, com menor prioridade)
+FRENTE:
+Se um arquivo com segredos for acidentalmente comitado no Git, basta apagá-lo e fazer um novo commit para resolver o problema?
+
+VERSO:
+Não. O arquivo e seu conteúdo ainda existirão no histórico do Git. É necessário usar ferramentas específicas (como o BFG Repo-Cleaner) para reescrever o histórico e remover o dado sensível permanentemente.
+
+FRENTE:
+Qual ferramenta é comumente recomendada para remover dados sensíveis do histórico de um repositório Git de forma segura?
+
+VERSO:
+O BFG Repo-Cleaner. É uma ferramenta mais simples e segura que a alternativa nativa do Git (git filter-branch).
+
+FRENTE:
+Qual o principal objetivo de criar scripts como services:up e dev no package.json para comandos do Docker?
+
+VERSO:
+Abstração e Padronização. Simplifica os comandos para o time de desenvolvimento (aumentando a produtividade) e cria um padrão que pode ser reutilizado em pipelines de Continuous Integration (CI).
+
+FRENTE:
+O que o comando npm run dev, definido como "npm run services:up && next dev", faz exatamente?
+
+VERSO:
+Ele primeiro executa o script services:up para garantir que os serviços (como o banco de dados) estejam rodando, e só então (&&) inicia a aplicação Next.js.
+
+FRENTE:
+Qual a diferença fundamental entre os comandos docker compose down e docker compose down -v?
+
+VERSO:
+docker compose down para e remove os contêineres, mas não apaga os volumes de dados. docker compose down -v (ou --volumes) remove os contêineres E TAMBÉM os volumes associados.
+
+FRENTE:
+No contexto da aula, por que o comando docker compose down (sem a flag -v) era suficiente para "zerar" o banco de dados?
+
+VERSO:
+Porque a imagem do Postgres estava usando um volume anônimo. Diferente de volumes nomeados, os anônimos não são reutilizados quando o contêiner é recriado, então a cada ciclo de down e up um novo volume zerado era criado.
+
+
