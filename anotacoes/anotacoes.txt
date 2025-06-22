@@ -2113,16 +2113,60 @@ add jsconfig.json file
 
 Anotações:
 
-code jscofing.json
+O objetivo desta aula é prático e direto: eliminar os confusos caminhos relativos como ../../../../ e habilitar "Absolute Imports", permitindo que qualquer arquivo no projeto possa importar módulos a partir da raiz, como infra/database.js.
 
-compilerOptions
+1. O Problema: Caminhos Relativos Frágeis
+A necessidade de calcular mentalmente quantos ../ são necessários para voltar à raiz do projeto é uma fonte comum de erros e dificulta a manutenção do código.
 
-dentro do jsconfig.json
+2. A Solução: Definir uma baseUrl
+A forma moderna de resolver isso em projetos JavaScript é informar às ferramentas (editor de código, Jest, etc.) onde fica a raiz do projeto.
+
+Passo 1: Criar o arquivo jsconfig.json
+Na raiz do seu projeto, crie um novo arquivo chamado jsconfig.json.
+
+Passo 2: Adicionar a Configuração
+Dentro do jsconfig.json, adicione o seguinte código:
+
+``` JSON
+
 {
   "compilerOptions": {
-    "baseUrl: "."
-  }  
+    "baseUrl": "."
+  }
 }
 
-git commit
+``` 
+
+"baseUrl": ".": Esta é a linha mais importante. Ela define que o diretório raiz do projeto (.) é a "base" para resolver os caminhos dos módulos.
+
+3. O Resultado Imediato
+Com essa configuração, um import que antes era escrito assim:
+import database from '../../../../infra/database.js';
+
+Agora pode ser escrito de forma muito mais limpa e robusta:
+import database from 'infra/database.js';
+
+Isso funciona de qualquer lugar do projeto, pois o caminho infra/database.js passa a ser resolvido a partir da raiz.
+
+4. Finalizando
+Commit: Após criar e configurar o jsconfig.json, o último passo é salvar esta importante melhoria no repositório com git commit.
+
+
+Configurar scripts dos serviços
+Essa aqui vai ser mais uma aula com lapidações, mas uma super importante, porque a gente vai deixar o projeto alinhado para quando a gente for trabalhar na issue de Continuous Integration 💪 Fora isso, a aula é repleta com dicas extras 😍
+
+Link para o commit feito na aula
+add services scripts
+Observação
+O aluno thiagosantana fez uma observação importante sobre a remoção de volumes com o comando docker compose down, que foi respondida nesse comentário aqui.
+
+thiagosantana, você está corretíssimo acerca do comportamento do comando docker compose down! 💪
+
+Ao executá-lo "puro", os volumes (nomeados ou anônimos) relacionados ao contêiner removido ainda permanecem. Para removê-los também é preciso passar a opção --volumes ou -v.
+
+Mas, ainda assim, usar apenas o docker compose down acaba servindo para o nosso propósito de criar uma instância do banco "zerada", porque o volume que é criado a partir da imagem que estamos usado é do tipo anônimo. E volumes anônimos não são compartilhados entre contêineres automaticamente (conforme também aqui). Então, quando executamos o "down" e depois o "up", um novo contêiner é criado juntamente com um novo volume anônimo.
+
+Muito obrigado por chamar a atenção para esse detalhe, meu caro! 🤝
+
+Anotações:
 
