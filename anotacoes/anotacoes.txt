@@ -2268,3 +2268,403 @@ VERSO:
 Porque a imagem do Postgres estava usando um volume anônimo. Diferente de volumes nomeados, os anônimos não são reutilizados quando o contêiner é recriado, então a cada ciclo de down e up um novo volume zerado era criado.
 
 
+
+
+
+🚗 Pista Rápida: Dia 20
+Eu já trabalhei com muita gente boa, mas até essas pessoas (uma parte delas pelo menos), deixavam escapar algo extremamente importante... deixavam de pensar sobre algo importante na hora de programar um backend, mas você não vai falhar nisso e é por esse e outros motivos que o Dia 20 existe 💪
+
+Anotações: 
+
+Resumo do Dia 20: Dando Vida ao Endpoint de Status
+O objetivo principal deste dia é evoluir o endpoint /api/v1/status para que ele deixe de ser um simples "OK" e passe a fornecer informações reais e úteis sobre a saúde do sistema, utilizando a API do TabNews como um modelo prático. A aula é recheada de lições sobre testes, TDD e segurança.
+
+1. Implementando Novas Informações no Endpoint
+O endpoint é enriquecido com novas propriedades para fornecer mais contexto sobre o estado do sistema:
+
+updated_at: Adiciona um timestamp (data e hora) para indicar quando as informações do status foram geradas.
+
+version: Utilizando o ciclo TDD (Red > Green > Refactor), o endpoint é modificado para retornar a versão do banco de dados que está em uso.
+
+2. Reflexões Profundas sobre Testes Automatizados
+A aula vai além da simples implementação e provoca reflexões críticas sobre a prática de testes:
+
+O "Susto" da Cobertura de Testes: É demonstrado um cenário onde um teste passa, mas não está validando o comportamento correto (no caso, o updated_at). Isso serve como um alerta de que ter 100% de cobertura não garante que a lógica está sendo testada de forma eficaz.
+
+Robustez dos Testes: Uma pergunta é lançada: "Se uma nova propriedade é adicionada à resposta da API, os testes deveriam quebrar?". Isso inicia uma discussão sobre como escrever testes que não sejam frágeis e que saibam lidar com mudanças não-quebráveis (non-breaking changes).
+
+Pragmatismo no TDD: Fica claro que TDD é uma ferramenta poderosa, mas não uma regra inflexível. Existem momentos no desenvolvimento em que o fluxo de trabalho pode mudar, e um bom profissional sabe quando e como aplicar a metodologia.
+
+3. Tópicos Avançados de Backend
+Dois temas cruciais para a operação de um sistema em produção são abordados:
+
+Gerenciamento de Conexões: Há uma discussão sobre os perigos e as implicações de abrir um número excessivo de conexões com o banco de dados, um ponto vital para a performance e estabilidade do sistema.
+
+Segurança (SQL Injection): Para fins didáticos, é criada intencionalmente uma versão do código vulnerável a SQL Injection, a fim de explorar na prática como essa falha de segurança funciona e como se proteger dela.
+
+
+
+Endpoint "/status": ISO 8601 + Fuso + MVC + lowerCamelCase
+Esta é uma descrição difícil de se fazer, pois esta é mais uma daquelas aulas onde eu avanço o projeto e utilizo qualquer oportunidade que consigo para fazer o download de mais conhecimentos. Por isso que além de avançar com o endpoint /status, eu aproveito para falar sobre ISO 8601, Fuso, MVC e lowerCamelCase 💪
+
+Anotações:
+
+Com base nas suas anotações e nas de outros alunos, organizei um resumo completo sobre os aprendizados da aula, focando nos conceitos, na implementação prática e nos testes.
+
+Resumo: Evoluindo o Endpoint de Status com Boas Práticas
+O objetivo desta aula é transformar o endpoint /api/v1/status em uma ferramenta de diagnóstico real, que retorna informações úteis sobre a saúde do banco de dados. Para isso, são aplicados diversos conceitos e padrões de desenvolvimento de software.
+
+Conceitos e Padrões Abordados
+Padrão de Data e Hora (ISO 8601): Para garantir que o timestamp (updated_at) seja consistente e independente de fuso horário, utiliza-se o padrão ISO 8601. Em JavaScript, isso é facilmente obtido com o método new Date().toISOString().
+
+Padrão de Projeto MVC (Model-View-Controller): A implementação segue o fluxo do MVC, onde a função do endpoint atua como o Controller. Ele recebe a requisição, solicita informações ao Model (que no caso é o nosso módulo database.js), processa os dados recebidos e os envia para a View (a resposta JSON).
+
+Padrões de Nomenclatura (Case Conventions): Foi adotada uma convenção clara para manter o código legível:
+
+lowerCamelCase: Para variáveis e constantes dentro do código JavaScript (ex: updatedAt, maxConnections).
+
+snake_case: Para as chaves dos objetos na resposta JSON da API (ex: "updated_at", "max_connections").
+
+Implementação do Endpoint /status
+A lógica do endpoint foi expandida para consultar e retornar informações vitais sobre o banco de dados PostgreSQL.
+
+Código do pages/api/v1/status/index.js:
+
+``` JavaScript
+
+import database from "infra/database.js";
+
+async function status(request, response) {
+  const updatedAt = new Date().toISOString();
+
+  // Executa as queries para buscar informações do banco
+  const databaseVersionResult = await database.query("SHOW server_version;");
+  const maxConnectionsResult = await database.query("SHOW max_connections;");
+  const openedConnectionsResult = await database.query(
+    "SELECT count(*)::int FROM pg_stat_activity WHERE datname = 'local_db';"
+  );
+
+  // Extrai e formata os resultados
+  const databaseVersionValue = databaseVersionResult.rows[0].server_version;
+  const maxConnectionsValue = parseInt(maxConnectionsResult.rows[0].max_connections);
+  const openedConnectionsValue = openedConnectionsResult.rows[0].count;
+
+  response.status(200).json({
+    updated_at: updatedAt,
+    dependencies: {
+      database: {
+        version: databaseVersionValue,
+        max_connections: maxConnectionsValue,
+        opened_connections: openedConnectionsValue,
+      },
+    },
+  });
+}
+
+export default status;
+
+``` 
+
+Testes de Integração para o Endpoint
+Os testes foram atualizados para validar não apenas o status da resposta, mas também a estrutura e o tipo de cada dado retornado.
+
+Resumo dos testes em get.test.js:
+
+Verifica se o response.status é 200.
+
+Verifica se a chave updated_at existe e se seu valor é uma string no formato ISO 8601 válido.
+
+Verifica se a versão do banco de dados (version) é uma string e corresponde ao valor esperado (ex: '16.0').
+
+Verifica se o número máximo de conexões (max_connections) é um número inteiro.
+
+Verifica se as conexões abertas (opened_connections) é um número inteiro e se é menor ou igual ao máximo de conexões.
+
+Isso demonstra um equilíbrio, onde os testes garantem a "forma" do contrato da API sem tornar a manutenção excessivamente difícil, uma preocupação válida ao aumentar a cobertura de testes.
+
+Links e Recursos Úteis
+PostgreSQL – Documentação Oficial
+Comando SHOW: https://www.postgresql.org/docs/current/sql-show.html
+
+Parâmetro server_version: https://www.postgresql.org/docs/current/runtime-config-preset.html#GUC-SERVER-VERSION
+
+Parâmetro max_connections: https://www.postgresql.org/docs/current/runtime-config-connection.html#GUC-MAX-CONNECTIONS
+
+View pg_stat_activity (conexões ativas): https://www.postgresql.org/docs/current/monitoring-stats.html#PG-STAT-ACTIVITY-VIEW
+
+Node.js + PostgreSQL (pg)
+Documentação principal do pg: https://node-postgres.com/
+
+Consultas com query(): https://node-postgres.com/features/queries
+
+Testes com Jest
+Matchers Numéricos: https://jestjs.io/docs/expect#tobelessthanorequalnumber
+
+Documentação Geral: https://jestjs.io/docs/getting-started
+
+
+
+
+
+Database "Version" (+ Red, Green e Refactor do TDD)
+Chegou a hora de usar 100% de TDD para implementar o retorno do dependencies.database.version. Fora isso, vamos revisitar os 3 Estágios do TDD que são Red, Green e Refactor 💪
+
+Anotações:
+
+Com base nas suas anotações e nas do outro aluno, organizei um resumo focado no processo TDD para implementar a nova funcionalidade no endpoint.
+
+Resumo: Adicionando a Versão do Banco com TDD (Red, Green, Refactor)
+O objetivo desta aula é adicionar a versão do PostgreSQL à resposta do endpoint /api/v1/status, utilizando estritamente a metodologia TDD (Test-Driven Development) para guiar a implementação.
+
+O Ciclo TDD na Prática
+A metodologia TDD é dividida em três estágios, que foram seguidos à risca:
+
+🔴 Estágio 1: Red (Vermelho) - Escrever um Teste que Falha
+O primeiro passo é adicionar uma nova expectativa ao arquivo de teste (get.test.js) antes que a funcionalidade exista. Isso garante que o teste está, de fato, validando a nova implementação.
+
+Alteração no Teste:
+
+JavaScript
+
+test("GET to /api/v1/status should return 200", async () => {
+  // ...outras expectativas...
+  
+  // Nova expectativa que irá falhar inicialmente
+  expect(responseBody.dependencies.database.version).toEqual("16.0");
+});
+Ao rodar os testes agora, ele falhará, pois o objeto dependencies e a propriedade version ainda não existem na resposta da API. O teste está "vermelho".
+
+🟢 Estágio 2: Green (Verde) - Fazer o Teste Passar
+O objetivo agora é escrever o mínimo de código necessário na lógica do endpoint para que o teste passe.
+
+Alteração no Endpoint (status/index.js):
+
+JavaScript
+
+async function status(request, response) {
+  const updatedAt = new Date().toISOString();
+
+  // 1. Executa a query para buscar a versão do servidor
+  const databaseVersionResult = await database.query("SHOW server_version;");
+  
+  // 2. Extrai o valor da resposta
+  const databaseVersionValue = databaseVersionResult.rows[0].server_version;
+
+  // 3. Adiciona a nova estrutura ao JSON de resposta
+  response.status(200).json({
+    updated_at: updatedAt,
+    dependencies: {
+      database: {
+        version: databaseVersionValue,
+      },
+    },
+  });
+}
+Com esse código, o endpoint agora retorna a estrutura esperada pelo teste. Ao rodar os testes novamente, eles passarão. O teste está "verde".
+
+🔵 Estágio 3: Refactor (Refatorar) - Melhorar o Código
+Com a garantia de que a funcionalidade está correta (testes passando), este é o momento seguro para revisar e melhorar o código, como renomear variáveis para maior clareza ou otimizar a lógica, sem alterar o comportamento.
+
+Conceitos Importantes da Aula
+Database Query: Uma "query" é uma consulta enviada para o banco de dados. Foi reforçado que comandos como SHOW server_version; são executados no servidor do banco de dados, não na aplicação Node.js.
+
+Estrutura da Resposta: Consultas a bancos de dados relacionais sempre retornam os dados em formato de rows (linhas), mesmo que seja um único valor. Por isso é necessário acessar result.rows[0].
+
+⚠️ Ponto de Atenção: A implementação atual, que abre e fecha uma nova conexão a cada query, não é performática e pode levar a um vazamento de conexões em produção. Este é um problema a ser resolvido em aulas futuras.
+
+
+
+
+
+Database "Max Connections"
+Já que estamos retornando a Versão do Postgres no endpoint /status, o próximo agora passo é retornar as Conexões máximas e, tecnicamente falando, isso é uma implementação simples, mas vai ser a oportunidade perfeita pra que, no meio da implementação, eu faça uma pergunta muito importante.. uma que evitaria eu ter cometido um erro no TabNews. Vamos ver qual vai ser a sua resposta 😍
+
+Anotações:
+
+Resumo: Adicionando "Max Connections" e a Fragilidade de APIs
+O objetivo da aula é adicionar o número máximo de conexões do PostgreSQL ao endpoint /status. Embora a implementação seja simples, ela serve como uma oportunidade perfeita para discutir um ponto crucial sobre a evolução de APIs e a fragilidade que mudanças aparentemente inofensivas podem causar.
+
+Implementação Prática
+Seguindo o fluxo da aula anterior, a implementação é guiada por testes:
+
+Adicionar Teste para max_connections:
+Um novo teste é adicionado para garantir que a resposta da API contenha a propriedade dependencies.database.max_connections com o valor esperado (neste caso, 100).
+
+Alteração no Teste (get.test.js):
+
+JavaScript
+
+test("GET to /api/v1/status should return 200", async () => {
+  // ...outras expectativas...
+  expect(responseBody.dependencies.database.max_connections).toEqual(100);
+});
+Implementar a Lógica no Endpoint:
+O endpoint é modificado para executar a query SHOW max_connections;, extrair o valor, convertê-lo para um número inteiro e adicioná-lo à resposta JSON.
+
+Alteração no Endpoint (status/index.js):
+
+JavaScript
+
+async function status(request, response) {
+  // ...
+  const databaseMaxConnectionsResult = await database.query("SHOW max_connections;");
+  const databaseMaxConnectionsValue = databaseMaxConnectionsResult.rows[0].max_connections;
+
+  response.status(200).json({
+    // ...
+    dependencies: {
+      database: {
+        version: databaseVersionValue,
+        max_connections: parseInt(databaseMaxConnectionsValue),
+      },
+    },
+  });
+}
+A Discussão Principal: O Risco das Mudanças "Não-Quebráveis"
+A implementação levanta uma pergunta fundamental, um erro que o instrutor admitiu ter cometido no projeto TabNews:
+
+Non-Breaking Changes podem ser perigosos?
+
+Adicionar um novo campo a uma API é, tecnicamente, uma non-breaking change (mudança não-quebrável), pois não afeta os clientes que já consomem a API.
+
+O Risco Oculto: A fragilidade está em como os dados são selecionados e retornados. Se a API simplesmente retorna tudo o que vem do banco de dados (ex: SELECT *), uma nova coluna sensível adicionada ao banco (como password) poderia ser acidentalmente exposta na API pública.
+
+Como Mitigar o Risco?
+
+Ser Explícito: Sempre selecione explicitamente os campos que você deseja retornar, em vez de usar *.
+
+Testes Mais Estritos: Os testes poderiam ser escritos para falhar caso qualquer propriedade inesperada apareça na resposta. No entanto, a aula opta por testes menos estritos para fins didáticos.
+
+O "Cliffhanger" para a Próxima Aula:
+A aula termina com uma nova pergunta crítica: O que acontece se a aplicação começar a usar todas as conexões disponíveis no banco de dados? Isso prepara o terreno para a próxima discussão sobre conexões usadas e vazamento de conexões.
+
+
+
+
+
+Database "Opened Connections"
+Essa Pista Lenta aqui vai ser muito massa, porque ela vai abrir margem pra eu ensinar conceitos muito importantes sobre Banco de Dados, tráfego de dados, fora que a última coisa que falta é injetar no retorno do endpoint /status a quantidade de Conexões usadas pelo nosso backend, na verdade... quantas conexões ao banco estão abertas naquele momento, independente se foi nosso backend ou outro client que está se conectando ao banco 🤝
+o é passível de SQL injection.
+abelas tradicionais que só é possível visualizar e não alterar.
+o IP de quem está conectado.
+s usar.
+
+Anotações: 
+
+Com base nas suas anotações e nas do outro aluno, organizei um resumo completo da aula, focando nos conceitos de segurança, nas ferramentas do PostgreSQL e na implementação final do endpoint.
+
+Resumo: Adicionando "Opened Connections" e Explorando o Banco de Dados
+O objetivo desta aula é adicionar a informação final ao endpoint /status: a quantidade de conexões atualmente abertas no banco de dados. Essa implementação abre a porta para o aprendizado de conceitos cruciais sobre segurança (SQL Injection), tráfego de dados e o funcionamento interno do PostgreSQL.
+
+Conceitos de Segurança: SQL Injection e Queries Parametrizadas
+A aula introduz um dos tópicos mais importantes em segurança de backend: o SQL Injection.
+
+O que é? Uma vulnerabilidade que ocorre quando um atacante consegue injetar e executar comandos SQL maliciosos através da entrada de dados de uma aplicação.
+
+Tipos de Queries e seu Risco:
+
+Query sem Parâmetros: Segura, pois não há entrada de dados (ex: SHOW max_connections;).
+
+Query com Parâmetros Fixos: Segura, pois os valores são definidos no próprio código.
+
+Query com Parâmetros Dinâmicos: Potencialmente vulnerável. Se a entrada do usuário for concatenada diretamente na string da query, ela pode ser manipulada para executar comandos indesejados.
+
+Explorando o PostgreSQL: System Views
+Para obter informações em tempo real sobre o estado do banco, utilizamos as System Views do PostgreSQL, que são como tabelas especiais de apenas leitura.
+
+pg_stat_activity: A view utilizada na aula. Ela fornece informações detalhadas sobre cada conexão ativa no momento, como o IP do cliente e a qual banco de dados (datname) a conexão pertence.
+
+pg_stat_database: Outra view mencionada, que fornece estatísticas agregadas por banco de dados.
+
+Implementação Prática
+A implementação final utiliza a pg_stat_activity para contar quantas conexões estão abertas para o nosso banco de dados específico.
+
+A Query:
+
+SQL
+
+SELECT count(*)::int FROM pg_stat_activity WHERE datname = 'local_db';
+WHERE datname = 'local_db': Filtra as conexões para mostrar apenas as do nosso banco de dados.
+
+count(*)::int: Conta as linhas e usa Type Casting (::int) para converter o resultado (que por padrão é bigint) para um integer, um tipo de dado mais comum em JavaScript.
+
+Código do Endpoint (status/index.js):
+
+JavaScript
+
+async function status(request, response) {
+  // ... (outras queries) ...
+
+  const databaseOpenedConnectionsResult = await database.query({
+    text: "SELECT count(*)::int FROM pg_stat_activity WHERE datname = $1;",
+    values: [process.env.POSTGRES_DB],
+  });
+
+  const databaseOpenedConnectionsValue = databaseOpenedConnectionsResult.rows[0].count;
+
+  response.status(200).json({
+    updated_at: updatedAt,
+    dependencies: {
+      database: {
+        version: databaseVersionValue,
+        max_connections: parseInt(databaseMaxConnectionsValue),
+        opened_connections: databaseOpenedConnectionsValue,
+      },
+    },
+  });
+}
+(Nota: O código acima já está refatorado para usar uma query parametrizada, um passo importante para a segurança).
+
+Teste de Integração (get.test.js):
+O teste é atualizado para validar a nova propriedade.
+
+JavaScript
+
+test("GET to /api/v1/status should return 200", async () => {
+  // ... (outras expectativas) ...
+  expect(responseBody.dependencies.database.opened_connections).toEqual(1);
+});
+
+A expectativa é 1 porque, no momento em que o endpoint é acessado pelo teste, a própria conexão do teste é a única que está aberta.
+
+
+
+
+
+SQL Injection e Queries Parametrizadas
+O Dia 20 tá bem massa e vai ficar ainda mais, porque nesta Pista Lenta vamos aprender sobre SQL Injection, Queries Parametrizadas, identificar e consertar o problema de Vazamento de Conexões, marcar como concluída a tarefa Finalizar retorno do endpoint /status e concluir a issue Banco de Dados (Local) com muito orgulho 💪
+
+Links para os commits feitos na aula
+make database.js more robust to error handling
+finish /api/v1/status endpoint
+Correção
+Quem exatamente protege a query de um SQL Injection não é o node-postgres e sim o próprio Postgres. Sugiro ler este comentário do gabrielmarques para detalhes excelentes sobre essa mecânica 🎉
+
+Notas de outros alunos:
+
+Notas de aula:
+template literal ou template strings são a mesma coisa. Eles se referem a uma funcionalidade introduzida no ECMAScript 6. São delimitados por (`) crases, não por aspas simples ou duplas. Exemplo: `Olá, ${nome}!`. O cifrão e chaves são um placeholder que irá rodar lógica javascript dentro.
+No arquivo get.test.js, ao acrescentar .only em test("nome_do_teste", () => {}), isso vai sinalizar para o Jest que ele deve rodar somente esse teste. Exemplo: test.only("nome_do_teste", () => {})
+Sem uma query sanitization (limpeza de consulta), o banco sempre estará em risco.
+Formas de fazer a limpeza de consulta:
+Forma manual: Procurar manualmente por comandos SQL na query como insert, delete ou alter. (Nunca faça da forma manual)
+Automática: Utilizando uma biblioteca.
+O node-postgres possui uma forma de fazer a query sanitization. A estratégia é separar o texto da query dos valores que você quer injetar nela.
+try/catch segue a seguinte lógica:
+try: o código tenta fazer algo. Se conseguir, show!
+catch: se não conseguir, será executada uma outra ação alternativa
+finally: caminho executado independentemente do retorno de try ou catch. No exemplo do Filipe, o finally foi usado para fechar a porta do banco de dados
+
+
+Minhas notas:
+
+SQL Injection
+
+Query parameters
+
+query sanitization
+
+Formas:  Manual (INSERT, DELETE, ALTER)
+Automática
+
+o postgres oferece de forma nativa query parameterized query
