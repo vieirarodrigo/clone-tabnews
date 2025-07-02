@@ -2640,31 +2640,125 @@ finish /api/v1/status endpoint
 Correção
 Quem exatamente protege a query de um SQL Injection não é o node-postgres e sim o próprio Postgres. Sugiro ler este comentário do gabrielmarques para detalhes excelentes sobre essa mecânica 🎉
 
-Notas de outros alunos:
+Anotações:
 
-Notas de aula:
-template literal ou template strings são a mesma coisa. Eles se referem a uma funcionalidade introduzida no ECMAScript 6. São delimitados por (`) crases, não por aspas simples ou duplas. Exemplo: `Olá, ${nome}!`. O cifrão e chaves são um placeholder que irá rodar lógica javascript dentro.
-No arquivo get.test.js, ao acrescentar .only em test("nome_do_teste", () => {}), isso vai sinalizar para o Jest que ele deve rodar somente esse teste. Exemplo: test.only("nome_do_teste", () => {})
-Sem uma query sanitization (limpeza de consulta), o banco sempre estará em risco.
-Formas de fazer a limpeza de consulta:
-Forma manual: Procurar manualmente por comandos SQL na query como insert, delete ou alter. (Nunca faça da forma manual)
-Automática: Utilizando uma biblioteca.
-O node-postgres possui uma forma de fazer a query sanitization. A estratégia é separar o texto da query dos valores que você quer injetar nela.
-try/catch segue a seguinte lógica:
-try: o código tenta fazer algo. Se conseguir, show!
-catch: se não conseguir, será executada uma outra ação alternativa
-finally: caminho executado independentemente do retorno de try ou catch. No exemplo do Filipe, o finally foi usado para fechar a porta do banco de dados
+Resumo da Aula: Prevenindo SQL Injection e Vazamento de Conexões
+O foco desta aula foi refatorar o código para corrigir duas falhas críticas em aplicações backend: vulnerabilidades de SQL Injection e vazamento de conexões com o banco de dados.
 
+index.js - Prevenindo SQL Injection com Queries Parametrizadas
+A principal mudança neste arquivo foi na forma como a query para contar as conexões abertas é construída, a fim de eliminar uma grave falha de segurança.
 
-Minhas notas:
+O Problema: A versão anterior do código construía a query de forma dinâmica, concatenando o nome do banco de dados diretamente na string SQL.
 
-SQL Injection
+JavaScript
 
-Query parameters
+// VERSÃO VULNERÁVEL (NÃO USE)
+// const databaseName = request.query.databaseName; // Pega o input do usuário
+// const result = await database.query(
+//   `SELECT count(*)::int from pg_stat_activity WHERE datname = '${databaseName}';`
+// );
+Isso abre uma brecha para SQL Injection, onde um atacante poderia manipular o databaseName para executar comandos maliciosos no banco (como '; SELECT pg_sleep(4); --), causando lentidão ou até mesmo roubando ou deletando dados.
 
-query sanitization
+A Solução: A query foi reescrita como uma query parametrizada.
 
-Formas:  Manual (INSERT, DELETE, ALTER)
-Automática
+JavaScript
 
-o postgres oferece de forma nativa query parameterized query
+// VERSÃO SEGURA (IMPLEMENTAÇÃO ATUAL)
+const databaseName = process.env.POSTGRES_DB; // Pega o nome do banco de uma variável de ambiente segura
+const databaseOpenedConnectionsResult = await database.query({
+  text: "SELECT count(*)::int FROM pg_stat_activity WHERE datname = $1;",
+  values: [databaseName],
+});
+Nesta abordagem, o comando SQL (text) é enviado ao banco de dados separadamente dos valores (values). O driver do PostgreSQL (pg) se encarrega de inserir os valores de forma segura, tratando qualquer input como um simples texto e nunca como um comando a ser executado.
+
+database.js - Garantindo o Fechamento de Conexões
+A mudança no módulo de banco de dados foi crucial para evitar o vazamento de conexões, um problema que pode esgotar os recursos do banco e derrubar a aplicação.
+
+O Problema: Na versão anterior, se client.query() gerasse um erro (por exemplo, uma sintaxe SQL inválida), a execução da função pararia e a linha await client.end() nunca seria alcançada. Isso deixaria uma conexão com o banco de dados aberta para sempre.
+
+A Solução: O uso de um bloco try...catch...finally.
+
+JavaScript
+
+// IMPLEMENTAÇÃO ATUAL
+try {
+  const result = await client.query(queryObject);
+  return result;
+} catch (error) {
+  console.error(error);
+  throw error; // Propaga o erro para quem chamou a função
+} finally {
+  await client.end(); // Garante que a conexão será fechada
+}
+O bloco finally é sempre executado, não importa se o código no try funcionou ou se um erro foi capturado pelo catch. Colocar o await client.end() dentro do finally garante que a conexão com o banco de dados será sempre fechada, evitando vazamentos.
+
+get.test.js - Validando a Segurança
+Um teste específico para SQL Injection foi criado e depois comentado, servindo como uma ferramenta de diagnóstico durante o desenvolvimento.
+
+O Teste:
+
+JavaScript
+
+// Teste para validar a correção do SQL Injection (comentado no código final)
+// test.only("Teste de SQL Injection", async () => {
+//   await fetch(
+//     "http:localhost:3000/api/v1/status?databaseName='; SELECT pg_sleep(4); --",
+//   );
+// });
+O Propósito: Este teste foi usado para provar que a versão vulnerável do código (com concatenação de strings) permitia o ataque. Ao executá-lo, a resposta da API demoraria 4 segundos, confirmando a falha. Após a correção com a query parametrizada, este mesmo teste passaria a responder instantaneamente, provando que a vulnerabilidade foi fechada.
+
+Flashcards dia 20:
+
+FRENTE:
+O que é uma vulnerabilidade de "SQL Injection"?
+
+VERSO:
+É uma falha de segurança que permite a um atacante injetar e executar comandos SQL maliciosos no banco de dados através de uma entrada de dados não tratada da aplicação.
+
+FRENTE:
+Qual é a principal técnica para prevenir ataques de SQL Injection?
+
+VERSO:
+O uso de Queries Parametrizadas (ou Prepared Statements), onde o comando SQL e os dados são enviados ao banco de forma separada, impedindo que os dados sejam interpretados como comandos.
+
+FRENTE:
+Quais são os 3 estágios do ciclo TDD (Test-Driven Development)?
+
+VERSO:
+
+Red (Vermelho): Escrever um teste que falha.
+
+Green (Verde): Escrever o código mínimo para o teste passar.
+
+Refactor (Refatorar): Melhorar o código sem alterar seu comportamento.
+
+FRENTE:
+O que é um "vazamento de conexões" (connection leak) com um banco de dados?
+
+VERSO:
+Ocorre quando uma aplicação abre uma conexão com o banco de dados e, por algum motivo (geralmente um erro não tratado), não a fecha. Com o tempo, as conexões abertas esgotam os recursos do banco.
+
+FRENTE:
+Em JavaScript/Node.js, qual estrutura de código é ideal para garantir que uma conexão com o banco seja sempre fechada, mesmo em caso de erro?
+
+VERSO:
+O bloco try...catch...finally. O código para fechar a conexão (client.end()) deve ser colocado no bloco finally, pois ele é executado independentemente de ter ocorrido um erro ou não.
+
+FRENTE:
+No PostgreSQL, qual "view" do sistema pode ser usada para consultar informações sobre as conexões ativas em tempo real?
+
+VERSO:
+A view pg_stat_activity. Ela permite ver detalhes como o cliente, o banco de dados ao qual está conectado (datname) e a query em execução.
+
+FRENTE:
+Para que serve o padrão ISO 8601 no contexto de APIs e timestamps?
+
+VERSO:
+Serve para representar datas e horas de forma padronizada e inequívoca, geralmente incluindo informações de fuso horário (como o "Z" para UTC). Exemplo: new Date().toISOString().
+
+FRENTE:
+Qual convenção de nomenclatura (case convention) é comum para chaves em respostas JSON de uma API?
+
+VERSO:
+snake_case (ex: "updated_at", "max_connections"), enquanto o código JavaScript internamente costuma usar lowerCamelCase.
+
